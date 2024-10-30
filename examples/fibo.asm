@@ -1,9 +1,9 @@
     push    1
-    push    1
+    dup
     print
     swap
     over
     add
-    sleep   1
-    jump    4
+    jump    3
+
 

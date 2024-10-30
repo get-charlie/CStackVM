@@ -1,12 +1,11 @@
 #include "machine.h"
-#include "instruction.h"
+#include "error.h"
 
 // Global data structures
 static int      stack[MAX_STK];
 static size_t   stack_p;
 static int      program_memory[MAX_MEM];
 static size_t   program_c;
-
 
 // Program loading
 struct OpPair {
@@ -35,7 +34,7 @@ static const struct OpPair OpMap [] = {
 
 static int get_op(char* word)
 {
-    for(int i = 0; i < sizeof(OpMap) / sizeof(struct OpPair); i++){
+    for(size_t i = 0; i < sizeof(OpMap) / sizeof(struct OpPair); i++){
         if(!strcmp(OpMap[i].opname, word)){
             return OpMap[i].code;
         }
@@ -83,168 +82,165 @@ void load_prog(char* program)
 }
 
 // Machine Control
-void step_prog(size_t step)
+static void step_program_c(size_t offset)
 {
-    program_c += step;
+    if(program_c + offset >= MAX_MEM){
+        memory_out_of_bounds();
+    }
+    program_c += offset;
 }
 
-int read_mem(size_t offset)
+int read_program_c(size_t offset)
 {
-   return program_memory[program_c + offset];
+    if(program_c + offset >= MAX_MEM){
+        memory_out_of_bounds();
+    }
+    return program_memory[program_c + offset];
+}
+
+static void move_stack_p(int offset)
+{
+    if(stack_p + offset > MAX_STK){
+        stack_overflow();
+    }
+    if((int)stack_p + offset < 0){
+        stack_underflow();
+    }
+    stack_p += offset;
+}
+
+static void test_stack(int elements)
+{
+    if((int)stack_p < elements){
+        stack_underflow();
+    }
 }
 
 // Instructions
-State push_op(int x)
+void push_op()
 {
-    if(stack_p == MAX_STK){
-        return STK_OVERFLOW;
-    }
-    stack[stack_p] = x;
-    stack_p++;
-    return NOMINAL;
+    stack[stack_p] = read_program_c(1);
+    move_stack_p(1);
+    step_program_c(2);
 }
 
-State pop_op()
+void pop_op()
 {
-    if(stack_p < 1){
-        return STK_UNDERFLOW;
-    }
-    stack_p--;
-    return NOMINAL;
+    move_stack_p(-1);
+    step_program_c(1);
 }
 
-State inc_op()
+void inc_op()
 {
-    if(stack_p < 1){
-        return STK_UNDERFLOW;
-    }
+    test_stack(1);
     stack[stack_p - 1] += 1;
-    return NOMINAL;
+    step_program_c(1);
 }
 
-State add_op()
+void add_op()
 {
-    if(stack_p < 2){
-        return STK_UNDERFLOW;
-    }
+    test_stack(2);
     stack[stack_p - 2] = stack[stack_p - 2] + stack[stack_p - 1];
-    stack_p--;
-    return NOMINAL;
+    move_stack_p(-1);
+    step_program_c(1);
 }
 
-State sub_op()
+void sub_op()
 {
-    if(stack_p < 2){
-        return STK_UNDERFLOW;
-    }
+    test_stack(2);
     stack[stack_p - 2] = stack[stack_p - 2] - stack[stack_p - 1];
-    stack_p--;
-    return NOMINAL;
+    move_stack_p(-1);
+    step_program_c(1);
 }
 
-State mul_op()
+void mul_op()
 {
-    if(stack_p < 2){
-        return STK_UNDERFLOW;
-    }
+    test_stack(2);
     stack[stack_p - 2] = stack[stack_p - 2] * stack[stack_p - 1];
-    stack_p--;
-    return NOMINAL;
+    move_stack_p(-1);
+    step_program_c(1);
 }
 
-State div_op()
+void div_op()
 {
-    if(stack_p < 2){
-        return STK_UNDERFLOW;
-    }
+    test_stack(2);
     if(stack[stack_p - 1] == 0){
-        return ZERO_DIVISION;
+        zero_division();
     }
     stack[stack_p - 2] = stack[stack_p - 2] / stack[stack_p - 1];
-    stack_p--;
-    return NOMINAL;
+    move_stack_p(-1);
+    step_program_c(1);
 }
 
-State mod_op()
+void mod_op()
 {
-    if(stack_p < 2){
-        return STK_UNDERFLOW;
-    }
+    test_stack(2);
     if(stack[stack_p - 1] == 0){
-        return ZERO_DIVISION;
+        zero_division();
     }
     stack[stack_p - 2] = stack[stack_p - 2] % stack[stack_p - 1];
-    stack_p--;
-    return NOMINAL;
+    move_stack_p(-1);
+    step_program_c(1);
 }
 
-State swap_op()
-{
-    if(stack_p < 2){
-        return STK_UNDERFLOW;
-    }
+void swap_op()
+{   
+    test_stack(2);
     int aux = stack[stack_p - 2];
     stack[stack_p - 2] = stack[stack_p - 1];
     stack[stack_p - 1] = aux;
-    return NOMINAL;
+    step_program_c(1);
 }
 
-State dup_op()
-{
-    if(stack_p == MAX_STK){
-        return STK_OVERFLOW;
-    }
+void dup_op()
+{   
+    test_stack(1);
     stack[stack_p] = stack[stack_p - 1];
-    stack_p++;
-    return NOMINAL;
+    move_stack_p(1);
+    step_program_c(1);
 }
 
-State over_op()
-{
-    if(stack_p == MAX_STK){
-        return STK_OVERFLOW;
-    }
+void over_op()
+{   
+    test_stack(2);
     stack[stack_p] = stack[stack_p - 2];
-    stack_p++;
-    return NOMINAL;
+    move_stack_p(1);
+    step_program_c(1);
 }
 
-State load_op(size_t address)
+void load_op()
 {
-    if(address < 0 || address >= MAX_MEM){
-        return MEM_OUT_OF_BOUNDS;
-    }
-    if(stack_p == MAX_STK){
-        return STK_OVERFLOW;
+    int address = read_program_c(1);
+    if(address >= MAX_MEM){
+        memory_out_of_bounds();
     }
     stack[stack_p] = program_memory[address];
-    stack_p++;
-    return NOMINAL;
+    move_stack_p(1);
+    step_program_c(2);
 }
 
-State store_op(size_t address)
+void store_op()
 {
-    if(address < 0 || address >= MAX_MEM){
-        return MEM_OUT_OF_BOUNDS;
+    int address = read_program_c(1);
+    if(address >= MAX_MEM){
+        memory_out_of_bounds();
     }
-    if(stack_p < 1){
-        return STK_UNDERFLOW;
-    }
+    test_stack(1);
     program_memory[address] = stack[stack_p - 1];
-    stack_p--;
-    return NOMINAL;
+    move_stack_p(-1);
+    step_program_c(2);
 }
 
-State jump_op(size_t address)
+void jump_op()
 {
-    if(address < 0 || address >= MAX_MEM){
-        return MEM_OUT_OF_BOUNDS;
+    int address = read_program_c(1);
+    if(address >= MAX_MEM){
+        memory_out_of_bounds();
     }
     program_c = address;
-    return NOMINAL;
 }
 
-State print_op()
+void print_op()
 {
     if(stack_p < 1){
         printf("EMPTY\n");
@@ -252,35 +248,22 @@ State print_op()
     else{
         printf("%d\n", stack[stack_p - 1]);
     }
-    return NOMINAL;
+    step_program_c(1);
 }
 
-State sleep_op(int time)
+void sleep_op()
 {
+    int time = read_program_c(1);
     sleep(time);
-    return NOMINAL;
+    step_program_c(2);
 }
 
-// Error handling functions
-const char* state_to_string(State state)
+void dump_machine()
 {
-    switch (state){
-        case NOMINAL:           return "NOMINAL";
-        case STK_OVERFLOW:      return "STK_OVERFLOW";
-        case STK_UNDERFLOW:     return "STK_UNDERFLOW";
-        case ILLEGAL_INST:      return "ILLEGAL_INST";
-        case MEM_OUT_OF_BOUNDS: return "MEM_OUT_OF_BOUNDS";
-        case ZERO_DIVISION:     return "ZERO_DIVISION";
-        default:                return "UNKNOWN";
+    for(int i = 0; i < (int)stack_p; i++){
+        printf("%d, ", stack[i]);
     }
-}
-
-void machine_dump()
-{
-    fprintf(stderr, "Machine dump:\n");
-    for(int i = stack_p; i > 0; i--){
-        fprintf(stderr, "%d\n", stack[i - 1]);
-    }
+    printf("\n");
 }
 
 

@@ -12,42 +12,39 @@
 #include <ctype.h>
 #include <unistd.h>
 
-typedef enum {
-    NOMINAL, STK_OVERFLOW, STK_UNDERFLOW, ILLEGAL_INST, MEM_OUT_OF_BOUNDS, ZERO_DIVISION,
-} State;
+typedef enum { 
+    PUSH, POP, SWAP, OVER, DUP, INC, ADD, SUB, MUL, DIV, MOD, LOAD, STORE, JUMP, PRINT, SLEEP, HALT, ILLEGAL,
+} OpCode;
 
+// Machine control
+int read_program_c(size_t offset);
 // Program Loading
 void  load_prog     (char* program);
-// Machine Control, not instructions
-void  step_prog     (size_t step);
-int   read_mem      (size_t offset);
-void  print_state   (State state);
 // Stack manipulation
-State push_op       (int x);
-State pop_op        ();
-State swap_op       ();
-State over_op       ();
-State dup_op        ();
+void push_op        ();
+void pop_op         ();
+void swap_op        ();
+void over_op        ();
+void dup_op         ();
 // Arithmetic operarions
-State inc_op        ();
-State add_op        ();
-State sub_op        ();
-State mul_op        ();
-State div_op        ();
-State mod_op        ();
+void inc_op         ();
+void add_op         ();
+void sub_op         ();
+void mul_op         ();
+void div_op         ();
+void mod_op         ();
 // Memory manipulation
-State load_op       (size_t address);
-State store_op      (size_t address);
+void load_op        ();
+void store_op       ();
 // Control flow
-State jump_op       (size_t address);
+void jump_op        ();
 // Output operations
-State print_op      ();
+void print_op       ();
 // Misc
-State sleep_op      (int time);
+void sleep_op       ();
 
 // Debugging
-const char* state_to_string(State state);
-void        machine_dump();
+void dump_machine   ();
 
 #endif
 
