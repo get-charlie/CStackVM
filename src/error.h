@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+void illegal_instruction();
 void zero_division();
 void memory_out_of_bounds();
 void stack_overflow();

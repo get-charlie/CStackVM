@@ -8,33 +8,35 @@ static int      program_memory[MAX_MEM];
 static size_t   program_c;
 
 // Program loading
-struct OpPair {
+struct Operation {
     const char* opname;
     OpCode  code;
+    void(*execute)();
 };
 
-static const struct OpPair OpMap [] = {
-    {"push" , PUSH},
-    {"pop"  , POP},
-    {"swap" , SWAP},
-    {"over" , OVER},
-    {"dup"  , DUP},
-    {"inc"  , INC},
-    {"add"  , ADD},
-    {"sub"  , SUB},
-    {"mul"  , MUL},
-    {"mod"  , DIV},
-    {"load" , LOAD},
-    {"store", STORE},
-    {"jump" , JUMP},
-    {"print", PRINT},
-    {"sleep", SLEEP},
-    {"halt" , HALT},
+static const struct Operation OpMap [] = {
+    {"push"  , PUSH  , push_op  },
+    {"pop"   , POP   , pop_op   },
+    {"swap"  , SWAP  , swap_op  },
+    {"over"  , OVER  , over_op  },
+    {"dup"   , DUP   , dup_op   },
+    {"inc"   , INC   , inc_op   },
+    {"add"   , ADD   , add_op   },
+    {"sub"   , SUB   , sub_op   },
+    {"mul"   , MUL   , mul_op   },
+    {"mod"   , DIV   , div_op   },
+    {"load"  , LOAD  , load_op  },
+    {"store" , STORE , store_op },
+    {"jump"  , JUMP  , jump_op  },
+    {"print" , PRINT , print_op },
+    {"sleep" , SLEEP , sleep_op },
+    {"halt"  , HALT  , halt_op  }
 };
 
-static int get_op(char* word)
+// Helper functions
+static int get_op_code(char* word)
 {
-    for(size_t i = 0; i < sizeof(OpMap) / sizeof(struct OpPair); i++){
+    for(size_t i = 0; i < sizeof(OpMap) / sizeof(struct Operation); i++){
         if(!strcmp(OpMap[i].opname, word)){
             return OpMap[i].code;
         }
@@ -60,28 +62,6 @@ static bool is_int(char* str)
     return true;
 }
 
-void load_prog(char* program)
-{
-    FILE* prog = fopen(program, "r");
-    if(prog == NULL){
-       fprintf(stderr, "ERROR: Could not open %s file\n", program);
-       exit(EXIT_FAILURE);
-    }
-    char word[MAX_WORD];
-    int i = 0;
-    while(fscanf(prog, "%s", word) == 1){
-        if(is_int(word)){
-            program_memory[i] = atoi(word);
-        }
-        else{
-            program_memory[i] = get_op(word);
-        }
-        i++;
-    }
-    fclose(prog);
-}
-
-// Machine Control
 static void step_program_c(size_t offset)
 {
     if(program_c + offset >= MAX_MEM){
@@ -90,7 +70,7 @@ static void step_program_c(size_t offset)
     program_c += offset;
 }
 
-int read_program_c(size_t offset)
+static int read_program_c(size_t offset)
 {
     if(program_c + offset >= MAX_MEM){
         memory_out_of_bounds();
@@ -116,6 +96,41 @@ static void test_stack(int elements)
     }
 }
 
+// Machine control
+void load_prog(char* program)
+{
+    FILE* prog = fopen(program, "r");
+    if(prog == NULL){
+       fprintf(stderr, "ERROR: Could not open %s file\n", program);
+       exit(EXIT_FAILURE);
+    }
+    char word[MAX_WORD];
+    int i = 0;
+    while(fscanf(prog, "%s", word) == 1){
+        if(is_int(word)){
+            program_memory[i] = atoi(word);
+        }
+        else{
+            program_memory[i] = get_op_code(word);
+        }
+        i++;
+    }
+    fclose(prog);
+}
+
+void execute_next() // TODO change the loop for an enum index execution (very fast)
+{
+    OpCode op = read_program_c(0);
+    if(op == ILLEGAL){
+        illegal_instruction();
+    }
+    for(size_t i = 0; i < sizeof(OpMap) / sizeof(struct Operation); i++){
+        if(op == OpMap[i].code){
+            OpMap[i].execute();
+        }
+    }
+}
+
 // Instructions
 void push_op()
 {
@@ -126,6 +141,7 @@ void push_op()
 
 void pop_op()
 {
+    test_stack(1);
     move_stack_p(-1);
     step_program_c(1);
 }
@@ -256,6 +272,11 @@ void sleep_op()
     int time = read_program_c(1);
     sleep(time);
     step_program_c(2);
+}
+
+void halt_op()
+{
+    exit(EXIT_SUCCESS);
 }
 
 void dump_machine()

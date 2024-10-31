@@ -1,5 +1,11 @@
 #include "error.h"
 
+void illegal_instruction()
+{
+    fprintf(stderr, "Error: Illegal instruction\n");
+    exit(EXIT_FAILURE);
+}
+
 void zero_division()
 {
     fprintf(stderr, "Error: Dividing by 0\n");
