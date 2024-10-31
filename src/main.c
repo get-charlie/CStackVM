@@ -10,12 +10,6 @@ void print_use(char* arg)
     fprintf(stderr, "Use: %s <program> <arguments...>\n", arg);
 }
 
-void load_arguments(int argc, char** argv) // TODO fix, broken because no push_op
-{
-    for(int i = 2; i < argc; i++){
-        push_op(atoi(argv[i]));
-    }
-}
 
 int main (int argc, char** argv)
 {
@@ -24,9 +18,7 @@ int main (int argc, char** argv)
         exit(EXIT_FAILURE);
     }
         
-    load_prog(argv[1]);
-
-    load_arguments(argc, argv);
+    load_prog(argv[1]); // TODO, load program arguments
 
     printf("Running %s...\n", argv[1]);
 

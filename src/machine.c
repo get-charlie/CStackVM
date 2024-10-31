@@ -7,38 +7,31 @@ static size_t   stack_p;
 static int      program_memory[MAX_MEM];
 static size_t   program_c;
 
-// Program loading
+typedef enum {
+    #define X_OP(opcode, opname, execute) opcode,
+    OPERATIONS
+    #undef  X_OP
+    ILLEGAL
+} OpCode;
+
 struct Operation {
+    OpCode opcode;
     const char* opname;
-    OpCode  code;
     void(*execute)();
 };
 
-static const struct Operation OpMap [] = {
-    {"push"  , PUSH  , push_op  },
-    {"pop"   , POP   , pop_op   },
-    {"swap"  , SWAP  , swap_op  },
-    {"over"  , OVER  , over_op  },
-    {"dup"   , DUP   , dup_op   },
-    {"inc"   , INC   , inc_op   },
-    {"add"   , ADD   , add_op   },
-    {"sub"   , SUB   , sub_op   },
-    {"mul"   , MUL   , mul_op   },
-    {"mod"   , DIV   , div_op   },
-    {"load"  , LOAD  , load_op  },
-    {"store" , STORE , store_op },
-    {"jump"  , JUMP  , jump_op  },
-    {"print" , PRINT , print_op },
-    {"sleep" , SLEEP , sleep_op },
-    {"halt"  , HALT  , halt_op  }
+static const struct Operation OpMap[] = {
+    #define X_OP(opcode, opname, execute) {opcode, opname, execute},
+    OPERATIONS
+    #undef  X_OP
 };
 
 // Helper functions
-static int get_op_code(char* word)
+static int get_opcode(char* word)
 {
     for(size_t i = 0; i < sizeof(OpMap) / sizeof(struct Operation); i++){
         if(!strcmp(OpMap[i].opname, word)){
-            return OpMap[i].code;
+            return OpMap[i].opcode;
         }
     }
     return ILLEGAL; 
@@ -96,7 +89,7 @@ static void test_stack(int elements)
     }
 }
 
-// Machine control
+// Program loading
 void load_prog(char* program)
 {
     FILE* prog = fopen(program, "r");
@@ -111,24 +104,21 @@ void load_prog(char* program)
             program_memory[i] = atoi(word);
         }
         else{
-            program_memory[i] = get_op_code(word);
+            program_memory[i] = get_opcode(word);
         }
         i++;
     }
     fclose(prog);
 }
 
-void execute_next() // TODO change the loop for an enum index execution (very fast)
+// Program execution
+void execute_next()
 {
     OpCode op = read_program_c(0);
     if(op == ILLEGAL){
         illegal_instruction();
     }
-    for(size_t i = 0; i < sizeof(OpMap) / sizeof(struct Operation); i++){
-        if(op == OpMap[i].code){
-            OpMap[i].execute();
-        }
-    }
+    OpMap[op].execute();
 }
 
 // Instructions

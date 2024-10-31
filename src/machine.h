@@ -12,9 +12,25 @@
 #define MAX_STK  16
 #define MAX_MEM  64
 
-typedef enum { 
-    PUSH, POP, SWAP, OVER, DUP, INC, ADD, SUB, MUL, DIV, MOD, LOAD, STORE, JUMP, PRINT, SLEEP, HALT, ILLEGAL,
-} OpCode;
+// X-macro defining Operation Map
+#define OPERATIONS \
+    X_OP(PUSH  , "push"  , push_op  ) \
+    X_OP(POP   , "pop"   , pop_op   ) \
+    X_OP(SWAP  , "swap"  , swap_op  ) \
+    X_OP(OVER  , "over"  , over_op  ) \
+    X_OP(DUP   , "dup"   , dup_op   ) \
+    X_OP(INC   , "inc"   , inc_op   ) \
+    X_OP(ADD   , "add"   , add_op   ) \
+    X_OP(SUB   , "sub"   , sub_op   ) \
+    X_OP(MUL   , "mul"   , mul_op   ) \
+    X_OP(DIV   , "div"   , div_op   ) \
+    X_OP(MOD   , "mod"   , mod_op   ) \
+    X_OP(LOAD  , "load"  , load_op  ) \
+    X_OP(STORE , "store" , store_op ) \
+    X_OP(JUMP  , "jump"  , jump_op  ) \
+    X_OP(PRINT , "print" , print_op ) \
+    X_OP(SLEEP , "sleep" , sleep_op ) \
+    X_OP(HALT  , "halt"  , halt_op  )
 
 // Program Loading
 void  load_prog     (char* program);
