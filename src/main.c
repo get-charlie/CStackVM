@@ -18,13 +18,13 @@ int main (int argc, char** argv)
         exit(EXIT_FAILURE);
     }
         
-    load_prog(argv[1]); // TODO, load program arguments
-
+    Machine machine = {0};
+    load_prog(&machine, argv[1]); // TODO, load program arguments
     printf("Running %s...\n", argv[1]);
 
     while(true){
-        execute_next();
-        dump_machine();
+        execute_next(&machine);
+        dump_machine(machine);
         sleep(1);
     }
     return 0;

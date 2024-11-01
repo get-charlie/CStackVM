@@ -1,42 +1,27 @@
 #include "machine.h"
 #include "error.h"
-
-// Global data structures
-static int      stack[MAX_STK];
-static size_t   stack_p;
-static int      program_memory[MAX_MEM];
-static size_t   program_c;
+#include "instruction.h"
 
 typedef enum {
-    #define X_OP(opcode, opname, execute) opcode,
-    OPERATIONS
-    #undef  X_OP
+    #define X_INST(instcode, instname, execute) instcode,
+    INSTRUCTIONS
+    #undef  X_INST
     ILLEGAL
-} OpCode;
+} InstCode;
 
-struct Operation {
-    OpCode opcode;
-    const char* opname;
-    void(*execute)();
+struct Instrucion {
+    InstCode instcode;
+    const char* instname;
+    void(*execute)(Machine* machine);
 };
 
-static const struct Operation OpMap[] = {
-    #define X_OP(opcode, opname, execute) {opcode, opname, execute},
-    OPERATIONS
-    #undef  X_OP
+static const struct Instrucion InstMap[] = {
+    #define X_INST(instcode, instname, execute) {instcode, instname, execute},
+    INSTRUCTIONS
+    #undef  X_INST
 };
 
 // Helper functions
-static int get_opcode(char* word)
-{
-    for(size_t i = 0; i < sizeof(OpMap) / sizeof(struct Operation); i++){
-        if(!strcmp(OpMap[i].opname, word)){
-            return OpMap[i].opcode;
-        }
-    }
-    return ILLEGAL; 
-}
-
 static bool is_int(char* str)
 {
     if(str == NULL || str[0] == '\0'){
@@ -55,42 +40,18 @@ static bool is_int(char* str)
     return true;
 }
 
-static void step_program_c(size_t offset)
+static int get_instcode(char* word)
 {
-    if(program_c + offset >= MAX_MEM){
-        memory_out_of_bounds();
+    for(size_t i = 0; i < sizeof(InstMap) / sizeof(struct Instrucion); i++){
+        if(!strcmp(InstMap[i].instname, word)){
+            return InstMap[i].instcode;
+        }
     }
-    program_c += offset;
-}
-
-static int read_program_c(size_t offset)
-{
-    if(program_c + offset >= MAX_MEM){
-        memory_out_of_bounds();
-    }
-    return program_memory[program_c + offset];
-}
-
-static void move_stack_p(int offset)
-{
-    if(stack_p + offset > MAX_STK){
-        stack_overflow();
-    }
-    if((int)stack_p + offset < 0){
-        stack_underflow();
-    }
-    stack_p += offset;
-}
-
-static void test_stack(int elements)
-{
-    if((int)stack_p < elements){
-        stack_underflow();
-    }
+    return ILLEGAL; 
 }
 
 // Program loading
-void load_prog(char* program)
+void load_prog(Machine* machine, char* program)
 {
     FILE* prog = fopen(program, "r");
     if(prog == NULL){
@@ -100,11 +61,14 @@ void load_prog(char* program)
     char word[MAX_WORD];
     int i = 0;
     while(fscanf(prog, "%s", word) == 1){
+        if(i > MAX_MEM){
+           memory_out_of_bounds(); 
+        }
         if(is_int(word)){
-            program_memory[i] = atoi(word);
+            machine->memory[i] = atoi(word);
         }
         else{
-            program_memory[i] = get_opcode(word);
+            machine->memory[i] = get_instcode(word);
         }
         i++;
     }
@@ -112,174 +76,58 @@ void load_prog(char* program)
 }
 
 // Program execution
-void execute_next()
+void execute_next(Machine* machine)
 {
-    OpCode op = read_program_c(0);
-    if(op == ILLEGAL){
+    InstCode inst = read_program_c(*machine, 0);
+    if(inst == ILLEGAL){
         illegal_instruction();
     }
-    OpMap[op].execute();
+    InstMap[inst].execute(machine);
 }
 
-// Instructions
-void push_op()
+// Machine control
+void step_program_c(Machine* machine, size_t offset)
 {
-    stack[stack_p] = read_program_c(1);
-    move_stack_p(1);
-    step_program_c(2);
-}
-
-void pop_op()
-{
-    test_stack(1);
-    move_stack_p(-1);
-    step_program_c(1);
-}
-
-void inc_op()
-{
-    test_stack(1);
-    stack[stack_p - 1] += 1;
-    step_program_c(1);
-}
-
-void add_op()
-{
-    test_stack(2);
-    stack[stack_p - 2] = stack[stack_p - 2] + stack[stack_p - 1];
-    move_stack_p(-1);
-    step_program_c(1);
-}
-
-void sub_op()
-{
-    test_stack(2);
-    stack[stack_p - 2] = stack[stack_p - 2] - stack[stack_p - 1];
-    move_stack_p(-1);
-    step_program_c(1);
-}
-
-void mul_op()
-{
-    test_stack(2);
-    stack[stack_p - 2] = stack[stack_p - 2] * stack[stack_p - 1];
-    move_stack_p(-1);
-    step_program_c(1);
-}
-
-void div_op()
-{
-    test_stack(2);
-    if(stack[stack_p - 1] == 0){
-        zero_division();
-    }
-    stack[stack_p - 2] = stack[stack_p - 2] / stack[stack_p - 1];
-    move_stack_p(-1);
-    step_program_c(1);
-}
-
-void mod_op()
-{
-    test_stack(2);
-    if(stack[stack_p - 1] == 0){
-        zero_division();
-    }
-    stack[stack_p - 2] = stack[stack_p - 2] % stack[stack_p - 1];
-    move_stack_p(-1);
-    step_program_c(1);
-}
-
-void swap_op()
-{   
-    test_stack(2);
-    int aux = stack[stack_p - 2];
-    stack[stack_p - 2] = stack[stack_p - 1];
-    stack[stack_p - 1] = aux;
-    step_program_c(1);
-}
-
-void dup_op()
-{   
-    test_stack(1);
-    stack[stack_p] = stack[stack_p - 1];
-    move_stack_p(1);
-    step_program_c(1);
-}
-
-void over_op()
-{   
-    test_stack(2);
-    stack[stack_p] = stack[stack_p - 2];
-    move_stack_p(1);
-    step_program_c(1);
-}
-
-void load_op()
-{
-    int address = read_program_c(1);
-    if(address >= MAX_MEM){
+    if(machine->program_c + offset >= MAX_MEM){
         memory_out_of_bounds();
     }
-    stack[stack_p] = program_memory[address];
-    move_stack_p(1);
-    step_program_c(2);
+    machine->program_c += offset;
 }
 
-void store_op()
+int read_program_c(Machine machine, size_t offset)
 {
-    int address = read_program_c(1);
-    if(address >= MAX_MEM){
+    if(machine.program_c + offset >= MAX_MEM){
         memory_out_of_bounds();
     }
-    test_stack(1);
-    program_memory[address] = stack[stack_p - 1];
-    move_stack_p(-1);
-    step_program_c(2);
+    return machine.memory[machine.program_c + offset];
 }
 
-void jump_op()
+void move_stack_p(Machine* machine, int offset)
 {
-    int address = read_program_c(1);
-    if(address >= MAX_MEM){
-        memory_out_of_bounds();
+    if(machine->stack_p + offset > MAX_STK){
+        stack_overflow();
     }
-    program_c = address;
-}
-
-void print_op()
-{
-    if(stack_p < 1){
-        printf("EMPTY\n");
+    if((int)machine->stack_p + offset < 0){
+        stack_underflow();
     }
-    else{
-        printf("%d\n", stack[stack_p - 1]);
+    machine->stack_p += offset;
+}
+
+void test_stack(Machine machine, int elements)
+{
+    if((int)machine.stack_p < elements){
+        stack_underflow();
     }
-    step_program_c(1);
 }
 
-void sleep_op()
+// Debugging
+void dump_machine(Machine machine)
 {
-    int time = read_program_c(1);
-    sleep(time);
-    step_program_c(2);
-}
-
-void halt_op()
-{
-    exit(EXIT_SUCCESS);
-}
-
-void dump_machine()
-{
-    for(int i = 0; i < (int)stack_p; i++){
-        printf("%d, ", stack[i]);
+    for(int i = 0; i < (int)machine.stack_p; i++){
+        printf("%d, ", machine.stack[i]);
     }
     printf("\n");
 }
-
-
-
-
 
 
 
