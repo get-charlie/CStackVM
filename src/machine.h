@@ -10,7 +10,7 @@
 
 #define MAX_WORD 32
 #define MAX_STK  16
-#define MAX_MEM  64
+#define MAX_MEM  128
 
 typedef struct {
     int     memory[MAX_MEM];
@@ -20,7 +20,7 @@ typedef struct {
 } Machine;
 
 // Program Loading
-void load_prog      (Machine* machine, char* program);
+void load_prog      (Machine* machine, int argc, char* argv[]);
 // Machine control
 void execute_next   (Machine* machine);
 int  read_program_c (Machine* machine, size_t offset);

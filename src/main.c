@@ -11,7 +11,7 @@ void print_use(char* arg)
 }
 
 
-int main (int argc, char** argv)
+int main (int argc, char* argv[])
 {
     if(argc < 2){
         print_use(argv[0]);
@@ -19,7 +19,7 @@ int main (int argc, char** argv)
     }
         
     Machine machine = {0};
-    load_prog(&machine, argv[1]); // TODO, load program arguments
+    load_prog(&machine, argc, argv); // TODO, load program arguments
     printf("Running %s...\n", argv[1]);
 
     while(true){

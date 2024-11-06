@@ -69,6 +69,13 @@ void mod_inst(Machine* machine)
     step_program_c(machine, 1);
 }
 
+void not_inst(Machine* machine)
+{
+    test_stack(machine, 1);
+    set_stack_val(machine, -1, ~get_stack_val(machine, -1));
+    step_program_c(machine, 1);
+}
+
 void swap_inst(Machine* machine)
 {   
     test_stack(machine, 2);
@@ -90,6 +97,13 @@ void over_inst(Machine* machine)
 {   
     test_stack(machine, 2);
     set_stack_val(machine, 0, get_stack_val(machine, -2));
+    move_stack_p(machine, 1);
+    step_program_c(machine, 1);
+}
+
+void size_inst(Machine* machine)
+{   
+    set_stack_val(machine, 0, machine->stack_p);
     move_stack_p(machine, 1);
     step_program_c(machine, 1);
 }

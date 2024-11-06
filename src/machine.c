@@ -51,11 +51,11 @@ static int get_instcode(char* word)
 }
 
 // Program loading
-void load_prog(Machine* machine, char* program)
+void load_prog(Machine* machine, int argc, char* argv[])
 {
-    FILE* prog = fopen(program, "r");
+    FILE* prog = fopen(argv[1], "r");
     if(prog == NULL){
-       fprintf(stderr, "ERROR: Could not open %s file\n", program);
+       fprintf(stderr, "ERROR: Could not open %s file\n", argv[1]);
        exit(EXIT_FAILURE);
     }
     char word[MAX_WORD];
@@ -71,6 +71,10 @@ void load_prog(Machine* machine, char* program)
             machine->memory[i] = get_instcode(word);
         }
         i++;
+    }
+    for(i = 2; i < argc; i++){
+        set_stack_val(machine, 0, atoi(argv[i]));
+        move_stack_p(machine, 1);
     }
     fclose(prog);
 }

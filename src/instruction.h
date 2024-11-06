@@ -20,11 +20,13 @@
     X_INST(MUL   , "mul"   , mul_inst   ) \
     X_INST(DIV   , "div"   , div_inst   ) \
     X_INST(MOD   , "mod"   , mod_inst   ) \
+    X_INST(NOT   , "not"   , not_inst   ) \
     X_INST(LOAD  , "load"  , load_inst  ) \
     X_INST(STORE , "store" , store_inst ) \
     X_INST(JUMP  , "jump"  , jump_inst  ) \
     X_INST(CMP   , "cmp"   , cmp_inst   ) \
     X_INST(JNZ   , "jnz"   , jnz_inst   ) \
+    X_INST(SIZE  , "size"  , size_inst  ) \
     X_INST(PRINT , "print" , print_inst ) \
     X_INST(SLEEP , "sleep" , sleep_inst ) \
     X_INST(NOP   , "nop"   , nop_inst   ) \
@@ -36,6 +38,7 @@ void pop_inst           (Machine* machine);
 void swap_inst          (Machine* machine);
 void over_inst          (Machine* machine);
 void dup_inst           (Machine* machine);
+void size_inst          (Machine* machine);
 // Arithmetic operarions
 void inc_inst           (Machine* machine);
 void add_inst           (Machine* machine);
@@ -43,6 +46,8 @@ void sub_inst           (Machine* machine);
 void mul_inst           (Machine* machine);
 void div_inst           (Machine* machine);
 void mod_inst           (Machine* machine);
+// Binary operations
+void not_inst           (Machine* machine);
 // Memory manipulation
 void load_inst          (Machine* machine);
 void store_inst         (Machine* machine);
