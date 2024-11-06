@@ -24,8 +24,8 @@ int main (int argc, char** argv)
 
     while(true){
         execute_next(&machine);
-        dump_machine(machine);
-        sleep(1);
+        // dump_machine(machine);
+        // sleep(1);
     }
     return 0;
 }

@@ -94,6 +94,34 @@ void over_inst(Machine* machine)
     step_program_c(machine, 1);
 }
 
+void cmp_inst(Machine* machine)
+{
+    test_stack(machine, 2);
+    int a = get_stack_val(machine, -1);
+    int b = get_stack_val(machine, -2);
+    set_stack_val(machine, -2, a == b ? -1 : 0);
+    move_stack_p(machine, -1);
+    step_program_c(machine, 1);
+}
+
+void jnz_inst(Machine* machine)
+{
+    test_stack(machine, 1);
+    int top = get_stack_val(machine, -1);
+    move_stack_p(machine, -1);
+    if(top != 0){
+        jump_inst(machine);
+    }
+    else{
+        step_program_c(machine, 2);
+    }
+}
+
+void nop_inst(Machine* machine)
+{
+    step_program_c(machine, 1);
+}
+
 void load_inst(Machine* machine)
 {
     int address = read_program_c(machine, 1);

@@ -23,32 +23,38 @@
     X_INST(LOAD  , "load"  , load_inst  ) \
     X_INST(STORE , "store" , store_inst ) \
     X_INST(JUMP  , "jump"  , jump_inst  ) \
+    X_INST(CMP   , "cmp"   , cmp_inst   ) \
+    X_INST(JNZ   , "jnz"   , jnz_inst   ) \
     X_INST(PRINT , "print" , print_inst ) \
     X_INST(SLEEP , "sleep" , sleep_inst ) \
-    X_INST(HALT  , "halt"  , halt_inst  )
+    X_INST(NOP   , "nop"   , nop_inst   ) \
+    X_INST(HALT  , "halt"  , halt_inst  ) 
 
 // Stack manipulation
-void push_inst        (Machine* machine);
-void pop_inst         (Machine* machine);
-void swap_inst        (Machine* machine);
-void over_inst        (Machine* machine);
-void dup_inst         (Machine* machine);
+void push_inst          (Machine* machine);
+void pop_inst           (Machine* machine);
+void swap_inst          (Machine* machine);
+void over_inst          (Machine* machine);
+void dup_inst           (Machine* machine);
 // Arithmetic operarions
-void inc_inst         (Machine* machine);
-void add_inst         (Machine* machine);
-void sub_inst         (Machine* machine);
-void mul_inst         (Machine* machine);
-void div_inst         (Machine* machine);
-void mod_inst         (Machine* machine);
+void inc_inst           (Machine* machine);
+void add_inst           (Machine* machine);
+void sub_inst           (Machine* machine);
+void mul_inst           (Machine* machine);
+void div_inst           (Machine* machine);
+void mod_inst           (Machine* machine);
 // Memory manipulation
-void load_inst        (Machine* machine);
-void store_inst       (Machine* machine);
+void load_inst          (Machine* machine);
+void store_inst         (Machine* machine);
 // Control flow
-void jump_inst        (Machine* machine);
+void jump_inst          (Machine* machine);
+void cmp_inst           (Machine* machine);
+void jnz_inst           (Machine* machine);
 // Output operations
-void print_inst       (Machine* machine);
+void print_inst         (Machine* machine);
 // Misc
-void sleep_inst       (Machine* machine);
-void halt_inst        (Machine* machine);
+void sleep_inst         (Machine* machine);
+void halt_inst          (Machine* machine);
+void nop_inst           (Machine* machine);
 
 #endif
