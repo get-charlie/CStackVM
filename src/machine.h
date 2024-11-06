@@ -23,10 +23,16 @@ typedef struct {
 void load_prog      (Machine* machine, char* program);
 // Machine control
 void execute_next   (Machine* machine);
-int  read_program_c (Machine machine, size_t offset);
+int  read_program_c (Machine* machine, size_t offset);
 void step_program_c (Machine* machine, size_t offset);
+void move_program_c (Machine* machine, size_t address);
+int  read_memory    (Machine* machine, size_t address);
+void write_memory   (Machine* machine, size_t address, int val);
+
+void test_stack     (Machine* machine, int elements);
 void move_stack_p   (Machine* machine, int offset);
-void test_stack     (Machine machine, int elements);
+int  get_stack_val  (Machine* machine, int offset);
+void set_stack_val  (Machine* machine, int offset, int val);
 // Debugging
 void dump_machine   (Machine machine);
 #endif

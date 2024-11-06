@@ -30,7 +30,11 @@ void stack_underflow()
     exit(EXIT_FAILURE);
 }
 
-
+void illegal_stack_access()
+{
+    fprintf(stderr, "Error: Illegal stack access\n");
+    exit(EXIT_FAILURE);
+}
 
 
 

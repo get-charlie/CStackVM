@@ -78,7 +78,7 @@ void load_prog(Machine* machine, char* program)
 // Program execution
 void execute_next(Machine* machine)
 {
-    InstCode inst = read_program_c(*machine, 0);
+    InstCode inst = read_program_c(machine, 0);
     if(inst == ILLEGAL){
         illegal_instruction();
     }
@@ -94,12 +94,59 @@ void step_program_c(Machine* machine, size_t offset)
     machine->program_c += offset;
 }
 
-int read_program_c(Machine machine, size_t offset)
+int read_program_c(Machine* machine, size_t offset)
 {
-    if(machine.program_c + offset >= MAX_MEM){
+    if(machine->program_c + offset >= MAX_MEM){
         memory_out_of_bounds();
     }
-    return machine.memory[machine.program_c + offset];
+    return machine->memory[machine->program_c + offset];
+}
+
+void move_program_c (Machine* machine, size_t address)
+{   
+    if(address >= MAX_MEM){
+        memory_out_of_bounds();
+    }
+    machine->program_c = address;
+}
+
+int read_memory(Machine* machine, size_t address)
+{
+    if(address >= MAX_MEM){
+        memory_out_of_bounds();
+    }
+    return machine->memory[address];
+}
+
+void write_memory(Machine* machine, size_t address, int val)
+{
+    if(address >= MAX_MEM){
+        memory_out_of_bounds();
+    }
+    machine->memory[address] = val;
+}
+
+void test_stack(Machine* machine, int elements)
+{
+    if((int)machine->stack_p < elements){
+        stack_underflow();
+    }
+}
+
+int get_stack_val (Machine* machine, int offset)
+{
+    if((int)machine->stack_p + offset < 0 || machine->stack_p + offset > machine->stack_p){
+        illegal_stack_access(); 
+    }
+    return machine->stack[machine->stack_p + offset];
+}
+
+void set_stack_val(Machine* machine, int offset, int val)
+{
+    if((int)machine->stack_p + offset < 0 || machine->stack_p + offset > MAX_STK){
+        illegal_stack_access(); 
+    }
+    machine->stack[machine->stack_p + offset] = val;
 }
 
 void move_stack_p(Machine* machine, int offset)
@@ -111,13 +158,6 @@ void move_stack_p(Machine* machine, int offset)
         stack_underflow();
     }
     machine->stack_p += offset;
-}
-
-void test_stack(Machine machine, int elements)
-{
-    if((int)machine.stack_p < elements){
-        stack_underflow();
-    }
 }
 
 // Debugging

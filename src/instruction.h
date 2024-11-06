@@ -7,7 +7,7 @@
 
 #include "machine.h"
 
-// X-macro defining Operation Map
+// X-macro defining Instruction Map
 #define INSTRUCTIONS \
     X_INST(PUSH  , "push"  , push_inst  ) \
     X_INST(POP   , "pop"   , pop_inst   ) \
