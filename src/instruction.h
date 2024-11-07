@@ -21,6 +21,9 @@
     X_INST(DIV   , "div"   , div_inst   ) \
     X_INST(MOD   , "mod"   , mod_inst   ) \
     X_INST(NOT   , "not"   , not_inst   ) \
+    X_INST(AND   , "and"   , and_inst   ) \
+    X_INST(OR    , "or"   ,  or_inst    ) \
+    X_INST(XOR   , "xor"   , xor_inst   ) \
     X_INST(LOAD  , "load"  , load_inst  ) \
     X_INST(STORE , "store" , store_inst ) \
     X_INST(JUMP  , "jump"  , jump_inst  ) \
@@ -48,6 +51,9 @@ void div_inst           (Machine* machine);
 void mod_inst           (Machine* machine);
 // Binary operations
 void not_inst           (Machine* machine);
+void and_inst           (Machine* machine);
+void or_inst            (Machine* machine);
+void xor_inst           (Machine* machine);
 // Memory manipulation
 void load_inst          (Machine* machine);
 void store_inst         (Machine* machine);

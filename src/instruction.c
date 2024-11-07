@@ -136,6 +136,30 @@ void nop_inst(Machine* machine)
     step_program_c(machine, 1);
 }
 
+void and_inst(Machine* machine)
+{
+    test_stack(machine, 2);
+    set_stack_val(machine, -2, get_stack_val(machine, -2) & get_stack_val(machine, -1));
+    move_stack_p(machine, -1);
+    step_program_c(machine, 1);
+}
+
+void or_inst(Machine* machine)
+{
+    test_stack(machine, 2);
+    set_stack_val(machine, -2, get_stack_val(machine, -2) | get_stack_val(machine, -1));
+    move_stack_p(machine, -1);
+    step_program_c(machine, 1);
+}
+
+void xor_inst(Machine* machine)
+{
+    test_stack(machine, 2);
+    set_stack_val(machine, -2, get_stack_val(machine, -2) ^ get_stack_val(machine, -1));
+    move_stack_p(machine, -1);
+    step_program_c(machine, 1);
+}
+
 void load_inst(Machine* machine)
 {
     int address = read_program_c(machine, 1);
