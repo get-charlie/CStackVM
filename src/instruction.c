@@ -160,12 +160,19 @@ void xor_inst(Machine* machine)
     step_program_c(machine, 1);
 }
 
-void ld_inst(Machine* machine)
+void ldi_inst(Machine* machine)
 {
     int address = read_program_c(machine, 1);
     set_stack_val(machine, 0, read_memory(machine, address));
     move_stack_p(machine, 1);
     step_program_c(machine, 2);
+}
+
+void lds_inst(Machine* machine)
+{
+    int address = get_stack_val(machine, -1);
+    set_stack_val(machine, -1, read_memory(machine, address));
+    step_program_c(machine, 1);
 }
 
 void sti_inst(Machine* machine)
@@ -201,13 +208,6 @@ void print_inst(Machine* machine)
         printf("%d\n", machine->stack[machine->stack_p - 1]);
     }
     step_program_c(machine, 1);
-}
-
-void sleep_inst(Machine* machine)
-{
-    int time = read_program_c(machine, 1);
-    sleep(time);
-    step_program_c(machine, 2);
 }
 
 void halt_inst(Machine* machine)
