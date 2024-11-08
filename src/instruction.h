@@ -22,12 +22,13 @@
     X_INST(MOD   , "mod"   , mod_inst   ) \
     X_INST(NOT   , "not"   , not_inst   ) \
     X_INST(AND   , "and"   , and_inst   ) \
-    X_INST(OR    , "or"   ,  or_inst    ) \
+    X_INST(OR    , "or"    , or_inst    ) \
     X_INST(XOR   , "xor"   , xor_inst   ) \
-    X_INST(LOAD  , "load"  , load_inst  ) \
-    X_INST(STORE , "store" , store_inst ) \
-    X_INST(JUMP  , "jump"  , jump_inst  ) \
+    X_INST(LD    , "ld"    , ld_inst    ) \
+    X_INST(STI   , "sti"   , sti_inst   ) \
+    X_INST(STS   , "sts"   , sts_inst   ) \
     X_INST(CMP   , "cmp"   , cmp_inst   ) \
+    X_INST(JMP   , "jmp"   , jmp_inst   ) \
     X_INST(JNZ   , "jnz"   , jnz_inst   ) \
     X_INST(SIZE  , "size"  , size_inst  ) \
     X_INST(PRINT , "print" , print_inst ) \
@@ -55,12 +56,13 @@ void and_inst           (Machine* machine);
 void or_inst            (Machine* machine);
 void xor_inst           (Machine* machine);
 // Memory manipulation
-void load_inst          (Machine* machine);
-void store_inst         (Machine* machine);
+void ld_inst            (Machine* machine); // pushes the value into the stack
+void sti_inst           (Machine* machine); // pops the value
+void sts_inst           (Machine* machine); // pops the dir and the value
 // Control flow
-void jump_inst          (Machine* machine);
-void cmp_inst           (Machine* machine);
-void jnz_inst           (Machine* machine);
+void cmp_inst           (Machine* machine); // pushes the value into the stack
+void jmp_inst           (Machine* machine); // takes the dir from memory 
+void jnz_inst           (Machine* machine); // takes the dir from memory and pops the top
 // Output operations
 void print_inst         (Machine* machine);
 // Misc

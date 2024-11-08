@@ -124,7 +124,7 @@ void jnz_inst(Machine* machine)
     int top = get_stack_val(machine, -1);
     move_stack_p(machine, -1);
     if(top != 0){
-        jump_inst(machine);
+        jmp_inst(machine);
     }
     else{
         step_program_c(machine, 2);
@@ -160,7 +160,7 @@ void xor_inst(Machine* machine)
     step_program_c(machine, 1);
 }
 
-void load_inst(Machine* machine)
+void ld_inst(Machine* machine)
 {
     int address = read_program_c(machine, 1);
     set_stack_val(machine, 0, read_memory(machine, address));
@@ -168,7 +168,7 @@ void load_inst(Machine* machine)
     step_program_c(machine, 2);
 }
 
-void store_inst(Machine* machine)
+void sti_inst(Machine* machine)
 {
     int address = read_program_c(machine, 1);
     test_stack(machine, 1);
@@ -177,7 +177,16 @@ void store_inst(Machine* machine)
     step_program_c(machine, 2);
 }
 
-void jump_inst(Machine* machine)
+void sts_inst(Machine* machine)
+{
+    test_stack(machine, 2);
+    int address = get_stack_val(machine, -1);
+    write_memory(machine, address, get_stack_val(machine, -2));
+    move_stack_p(machine, -2);
+    step_program_c(machine, 1);
+}
+
+void jmp_inst(Machine* machine)
 {
     int address = read_program_c(machine, 1);
     move_program_c(machine, address);
