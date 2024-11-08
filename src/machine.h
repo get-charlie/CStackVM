@@ -9,6 +9,8 @@
 #include <unistd.h>
 
 #define MAX_WORD 32
+#define MAX_LINE 128
+
 #define MAX_STK  16
 #define MAX_MEM  128
 

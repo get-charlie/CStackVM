@@ -51,6 +51,7 @@ static int get_instcode(char* word)
 }
 
 // Program loading
+#define DELIM " \n\t"
 void load_prog(Machine* machine, int argc, char* argv[])
 {
     FILE* prog = fopen(argv[1], "r");
@@ -58,19 +59,23 @@ void load_prog(Machine* machine, int argc, char* argv[])
        fprintf(stderr, "ERROR: Could not open %s file\n", argv[1]);
        exit(EXIT_FAILURE);
     }
-    char word[MAX_WORD];
+    char line[MAX_LINE];
     int i = 0;
-    while(fscanf(prog, "%s", word) == 1){
-        if(i > MAX_MEM){
-           memory_out_of_bounds(); 
+    while(fgets(line, MAX_LINE, prog)){
+        char* tok = strtok(line, DELIM);
+        while(tok != NULL){
+            if(strchr(tok, ';')){ // skipping comment
+                break;
+            }
+            if(is_int(tok)){
+                write_memory(machine, i, atoi(tok));
+            }
+            else{
+                write_memory(machine, i, get_instcode(tok));
+            }
+            tok = strtok(NULL, DELIM);
+            i++;
         }
-        if(is_int(word)){
-            machine->memory[i] = atoi(word);
-        }
-        else{
-            machine->memory[i] = get_instcode(word);
-        }
-        i++;
     }
     for(i = 2; i < argc; i++){
         set_stack_val(machine, 0, atoi(argv[i]));
@@ -170,7 +175,6 @@ void dump_machine(Machine machine)
     for(int i = 0; i < (int)machine.stack_p; i++){
         printf("%d, ", machine.stack[i]);
     }
-    printf("\n");
 }
 
 

@@ -25,7 +25,7 @@ int main (int argc, char* argv[])
     while(true){
         execute_next(&machine);
         // dump_machine(machine);
-        // sleep(1);
+        // getchar();
     }
     return 0;
 }

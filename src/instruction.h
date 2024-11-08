@@ -67,7 +67,7 @@ void jnz_inst           (Machine* machine); // takes the dir from memory and pop
 // Output operations
 void print_inst         (Machine* machine);
 // Misc
-void halt_inst          (Machine* machine);
 void nop_inst           (Machine* machine);
+void halt_inst          (Machine* machine);
 
 #endif
