@@ -1,6 +1,7 @@
 #include "machine.h"
-#include "error.h"
+
 #include "instruction.h"
+#include "error.h"
 
 typedef enum {
     #define X_INST(instcode, instname, execute) instcode,
@@ -50,38 +51,77 @@ static int get_instcode(char* word)
     return ILLEGAL; 
 }
 
-// Program loading
-#define DELIM " \n\t"
-void load_prog(Machine* machine, int argc, char* argv[])
+static void copy_tag(char* dest, char* source){
+    size_t i;
+    for(i = 0; i < sizeof(source) && source[i] != ':'; i++){
+        dest[i] = source[i];
+    }
+    dest[i] = '\0';
+}
+
+struct JumpTag {
+    char tag[MAX_WORD];
+    int  address;
+}; 
+
+static int get_jump_index(struct JumpTag table[MAX_TAGS], size_t table_size, char* tok)
 {
-    FILE* prog = fopen(argv[1], "r");
+    for(size_t i = 0; i < table_size; i++){
+        if(!strcmp(tok, table[i].tag)){
+            return table[i].address;
+        }
+    }
+    return -1;
+}
+
+// Program loading
+void load_prog(Machine* machine, char* path)
+{
+    FILE* prog = fopen(path, "r");
     if(prog == NULL){
-       fprintf(stderr, "ERROR: Could not open %s file\n", argv[1]);
+       fprintf(stderr, "ERROR: Could not open %s file\n", path);
        exit(EXIT_FAILURE);
     }
     char line[MAX_LINE];
-    int i = 0;
+    struct JumpTag jump_table[MAX_TAGS] = {0};
+    size_t table_size = 0;
+    int cur_dir = 0;
     while(fgets(line, MAX_LINE, prog)){
         char* tok = strtok(line, DELIM);
         while(tok != NULL){
-            if(strchr(tok, ';')){ // skipping comment
+            if(strchr(tok, ';')){
                 break;
             }
-            if(is_int(tok)){
-                write_memory(machine, i, atoi(tok));
+            if(strchr(tok, ':') && table_size < MAX_TAGS){
+                copy_tag(jump_table[table_size].tag, tok);
+                jump_table[table_size].address = cur_dir;
+                table_size++;
+                tok = strtok(NULL, DELIM);
+                continue;
+            }
+            int address = get_jump_index(jump_table, table_size, tok); 
+            if(address > 0){
+                write_memory(machine, cur_dir, address);
+            }
+            else if(is_int(tok)){
+                write_memory(machine, cur_dir, atoi(tok));
             }
             else{
-                write_memory(machine, i, get_instcode(tok));
+                write_memory(machine, cur_dir, get_instcode(tok));
             }
             tok = strtok(NULL, DELIM);
-            i++;
+            cur_dir++;
         }
     }
-    for(i = 2; i < argc; i++){
+    fclose(prog);
+}
+
+void push_args(Machine* machine, int argc, char* argv[])
+{
+    for(int i = 2; i < argc; i++){
         set_stack_val(machine, 0, atoi(argv[i]));
         move_stack_p(machine, 1);
     }
-    fclose(prog);
 }
 
 // Program execution
@@ -174,6 +214,9 @@ void dump_machine(Machine machine)
 {
     for(int i = 0; i < (int)machine.stack_p; i++){
         printf("%d, ", machine.stack[i]);
+    }
+    for(int i = 0; i < MAX_MEM; i++){
+        printf("dir: %d %3d\n", i, machine.memory[i]);
     }
 }
 

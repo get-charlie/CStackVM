@@ -8,11 +8,15 @@
 #include <ctype.h>
 #include <unistd.h>
 
-#define MAX_WORD 32
 #define MAX_LINE 128
+#define DELIM " \n\t"
 
 #define MAX_STK  16
-#define MAX_MEM  128
+#define MAX_MEM  1024
+
+#define MAX_WORD 32
+#define MAX_TAGS 100
+
 
 typedef struct {
     int     memory[MAX_MEM];
@@ -22,7 +26,8 @@ typedef struct {
 } Machine;
 
 // Program Loading
-void load_prog      (Machine* machine, int argc, char* argv[]);
+void load_prog      (Machine* machine, char* prog);
+void push_args      (Machine* machine, int argc, char* argv[]);
 // Machine control
 void execute_next   (Machine* machine);
 int  read_program_c (Machine* machine, size_t offset);
@@ -37,6 +42,7 @@ int  get_stack_val  (Machine* machine, int offset);
 void set_stack_val  (Machine* machine, int offset, int val);
 // Debugging
 void dump_machine   (Machine machine);
+
 #endif
 
 

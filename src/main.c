@@ -10,7 +10,6 @@ void print_use(char* arg)
     fprintf(stderr, "Use: %s <program> <arguments...>\n", arg);
 }
 
-
 int main (int argc, char* argv[])
 {
     if(argc < 2){
@@ -19,13 +18,11 @@ int main (int argc, char* argv[])
     }
         
     Machine machine = {0};
-    load_prog(&machine, argc, argv); // TODO, load program arguments
-    printf("Running %s...\n", argv[1]);
+    load_prog(&machine, argv[1]);
+    push_args(&machine, argc, argv);
 
     while(true){
         execute_next(&machine);
-        // dump_machine(machine);
-        // getchar();
     }
     return 0;
 }
