@@ -144,6 +144,20 @@ void xor_inst(Machine* machine)
     step_program_c(machine, 1);
 }
 
+void shl_inst(Machine* machine)
+{
+    set_stack_val(machine, -2, get_stack_val(machine, -2) << get_stack_val(machine, -1));
+    move_stack_p(machine, -1);
+    step_program_c(machine, 1);
+}
+
+void shr_inst(Machine* machine)
+{
+    set_stack_val(machine, -2, get_stack_val(machine, -2) >> get_stack_val(machine, -1));
+    move_stack_p(machine, -1);
+    step_program_c(machine, 1);
+}
+
 void ldi_inst(Machine* machine)
 {
     int address = read_program_c(machine, 1);
@@ -201,7 +215,9 @@ void print_inst(Machine* machine)
 void halt_inst(Machine* machine)
 {
     (void)machine; // Remove unused warning
-    printf("\n");
+    #ifdef DEBUG
+        printf("\n");
+    #endif
     exit(EXIT_SUCCESS);
 }
 

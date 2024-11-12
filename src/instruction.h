@@ -25,6 +25,8 @@
     X_INST(AND   , "and"   , and_inst   ) \
     X_INST(OR    , "or"    , or_inst    ) \
     X_INST(XOR   , "xor"   , xor_inst   ) \
+    X_INST(SHL   , "shl"   , shl_inst   ) \
+    X_INST(SHR   , "shr"   , shr_inst   ) \
     X_INST(LDI   , "ldi"   , ldi_inst   ) \
     X_INST(LDS   , "lds"   , lds_inst   ) \
     X_INST(STI   , "sti"   , sti_inst   ) \
@@ -56,6 +58,8 @@ void not_inst           (Machine* machine);
 void and_inst           (Machine* machine);
 void or_inst            (Machine* machine);
 void xor_inst           (Machine* machine);
+void shl_inst           (Machine* machine);
+void shr_inst           (Machine* machine);
 // Memory manipulation
 void ldi_inst           (Machine* machine);
 void lds_inst           (Machine* machine);
