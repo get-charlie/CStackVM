@@ -40,7 +40,7 @@ void move_stack_p   (Machine* machine, int offset);
 int  get_stack_val  (Machine* machine, int offset);
 void set_stack_val  (Machine* machine, int offset, int val);
 // Debugging
-void dump_machine   (Machine machine);
+void debug_machine  (Machine* machine);
 
 #endif
 

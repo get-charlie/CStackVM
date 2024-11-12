@@ -183,18 +183,25 @@ void jmp_inst(Machine* machine)
 
 void print_inst(Machine* machine)
 {
+    #ifdef DEBUG
+        printf("\nOUT: ");
+    #endif
     if(machine->stack_p < 1){
-        printf("EMPTY\n");
+        printf("EMPTY");
     }
     else{
-        printf("%d\n", machine->stack[machine->stack_p - 1]);
+        printf("%d", machine->stack[machine->stack_p - 1]);
     }
+    #ifndef DEBUG
+        printf("\n");
+    #endif
     step_program_c(machine, 1);
 }
 
 void halt_inst(Machine* machine)
 {
     (void)machine; // Remove unused warning
+    printf("\n");
     exit(EXIT_SUCCESS);
 }
 

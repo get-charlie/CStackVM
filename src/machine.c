@@ -234,20 +234,31 @@ void move_stack_p(Machine* machine, int offset)
 }
 
 // Debugging
-void dump_machine(Machine machine)
+void debug_machine(Machine* machine)
 {
-    for(int i = 0; i < (int)machine.stack_p; i++){
-        printf("%d, ", machine.stack[i]);
+    printf("PC: %-4d ", (int)machine->program_c);
+    InstCode inst = read_program_c(machine, 0);
+    if(inst >= ILLEGAL){
+        printf("INST: %-8s ", "illegal");
     }
-    // printf("\n");
-    // for(int i = 0; i < MAX_MEM; i++){
-    //     printf("%3d ", i);
-    // }
-    // printf("\n");
-    // for(int i = 0; i < MAX_MEM; i++){
-    //     printf("%3d ", machine.memory[i]);
-    // }
+    else{
+        printf("INST: %-8s ", InstMap[inst].instname);
+    }
+    printf("STACK: ");
+    if(machine->stack_p == 0){
+        printf("EMPTY");
+        return;
+    }
+    for(size_t i = 0; i < machine->stack_p; i++){
+        printf("%d", machine->stack[i]);
+        if(i != machine->stack_p -1) printf(", ");
+    }
 }
+
+
+
+
+
 
 
 
