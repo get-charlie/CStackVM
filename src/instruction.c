@@ -11,21 +11,18 @@ void push_inst(Machine* machine)
 
 void pop_inst(Machine* machine)
 {
-    test_stack(machine, 1);
     move_stack_p(machine, -1);
     step_program_c(machine, 1);
 }
 
 void inc_inst(Machine* machine)
 {
-    test_stack(machine, 1);
     set_stack_val(machine, -1, get_stack_val(machine, -1) + 1);
     step_program_c(machine, 1);
 }
 
 void add_inst(Machine* machine)
 {
-    test_stack(machine, 2);
     set_stack_val(machine, -2, get_stack_val(machine, -2) + get_stack_val(machine, -1));
     move_stack_p(machine, -1);
     step_program_c(machine, 1);
@@ -33,7 +30,6 @@ void add_inst(Machine* machine)
 
 void sub_inst(Machine* machine)
 {
-    test_stack(machine, 2);
     set_stack_val(machine, -2, get_stack_val(machine, -2) - get_stack_val(machine, -1));
     move_stack_p(machine, -1);
     step_program_c(machine, 1);
@@ -41,7 +37,6 @@ void sub_inst(Machine* machine)
 
 void mul_inst(Machine* machine)
 {
-    test_stack(machine, 2);
     set_stack_val(machine, -2, get_stack_val(machine, -2) * get_stack_val(machine, -1));
     move_stack_p(machine, -1);
     step_program_c(machine, 1);
@@ -49,7 +44,6 @@ void mul_inst(Machine* machine)
 
 void div_inst(Machine* machine)
 {
-    test_stack(machine, 2);
     if(get_stack_val(machine, -1) == 0){
         zero_division();
     }
@@ -60,7 +54,6 @@ void div_inst(Machine* machine)
 
 void mod_inst(Machine* machine)
 {
-    test_stack(machine, 2);
     if(get_stack_val(machine, -1) == 0){
         zero_division();
     }
@@ -71,14 +64,12 @@ void mod_inst(Machine* machine)
 
 void not_inst(Machine* machine)
 {
-    test_stack(machine, 1);
     set_stack_val(machine, -1, ~get_stack_val(machine, -1));
     step_program_c(machine, 1);
 }
 
 void swap_inst(Machine* machine)
 {   
-    test_stack(machine, 2);
     int aux = get_stack_val(machine, -2);
     set_stack_val(machine, -2, get_stack_val(machine, -1));
     set_stack_val(machine, -1, aux);
@@ -87,7 +78,6 @@ void swap_inst(Machine* machine)
 
 void dup_inst(Machine* machine)
 {   
-    test_stack(machine, 1);
     set_stack_val(machine, 0, get_stack_val(machine, -1));
     move_stack_p(machine, 1);
     step_program_c(machine, 1);
@@ -95,7 +85,6 @@ void dup_inst(Machine* machine)
 
 void over_inst(Machine* machine)
 {   
-    test_stack(machine, 2);
     set_stack_val(machine, 0, get_stack_val(machine, -2));
     move_stack_p(machine, 1);
     step_program_c(machine, 1);
@@ -110,7 +99,6 @@ void size_inst(Machine* machine)
 
 void cmp_inst(Machine* machine)
 {
-    test_stack(machine, 2);
     int a = get_stack_val(machine, -1);
     int b = get_stack_val(machine, -2);
     set_stack_val(machine, -2, a == b ? -1 : 0);
@@ -120,7 +108,6 @@ void cmp_inst(Machine* machine)
 
 void jnz_inst(Machine* machine)
 {
-    test_stack(machine, 1);
     int top = get_stack_val(machine, -1);
     move_stack_p(machine, -1);
     if(top != 0){
@@ -138,7 +125,6 @@ void nop_inst(Machine* machine)
 
 void and_inst(Machine* machine)
 {
-    test_stack(machine, 2);
     set_stack_val(machine, -2, get_stack_val(machine, -2) & get_stack_val(machine, -1));
     move_stack_p(machine, -1);
     step_program_c(machine, 1);
@@ -146,7 +132,6 @@ void and_inst(Machine* machine)
 
 void or_inst(Machine* machine)
 {
-    test_stack(machine, 2);
     set_stack_val(machine, -2, get_stack_val(machine, -2) | get_stack_val(machine, -1));
     move_stack_p(machine, -1);
     step_program_c(machine, 1);
@@ -154,7 +139,6 @@ void or_inst(Machine* machine)
 
 void xor_inst(Machine* machine)
 {
-    test_stack(machine, 2);
     set_stack_val(machine, -2, get_stack_val(machine, -2) ^ get_stack_val(machine, -1));
     move_stack_p(machine, -1);
     step_program_c(machine, 1);
@@ -178,7 +162,6 @@ void lds_inst(Machine* machine)
 void sti_inst(Machine* machine)
 {
     int address = read_program_c(machine, 1);
-    test_stack(machine, 1);
     write_memory(machine, address, get_stack_val(machine, -1));
     move_stack_p(machine, -1);
     step_program_c(machine, 2);
@@ -186,7 +169,6 @@ void sti_inst(Machine* machine)
 
 void sts_inst(Machine* machine)
 {
-    test_stack(machine, 2);
     int address = get_stack_val(machine, -1);
     write_memory(machine, address, get_stack_val(machine, -2));
     move_stack_p(machine, -2);

@@ -36,7 +36,6 @@ void move_program_c (Machine* machine, size_t address);
 int  read_memory    (Machine* machine, size_t address);
 void write_memory   (Machine* machine, size_t address, int val);
 
-void test_stack     (Machine* machine, int elements);
 void move_stack_p   (Machine* machine, int offset);
 int  get_stack_val  (Machine* machine, int offset);
 void set_stack_val  (Machine* machine, int offset, int val);

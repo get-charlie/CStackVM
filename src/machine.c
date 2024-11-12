@@ -217,13 +217,6 @@ void write_memory(Machine* machine, size_t address, int val)
     machine->memory[address] = val;
 }
 
-void test_stack(Machine* machine, int elements)
-{
-    if((int)machine->stack_p < elements){
-        stack_underflow();
-    }
-}
-
 int get_stack_val (Machine* machine, int offset)
 {
     if((int)machine->stack_p + offset < 0 || machine->stack_p + offset > machine->stack_p){
