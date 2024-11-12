@@ -12,10 +12,10 @@
 #define DELIM " \n\t"
 
 #define MAX_STK  16
-#define MAX_MEM  64
+#define MAX_MEM  128
 
 #define MAX_WORD 32
-#define MAX_TAGS 100
+#define MAX_TAGS 64
 
 
 typedef struct {

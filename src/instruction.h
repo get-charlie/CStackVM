@@ -8,6 +8,7 @@
 #include "machine.h"
 
 // X-macro defining Instruction Map
+
 #define INSTRUCTIONS \
     X_INST(PUSH  , "push"  , push_inst  ) \
     X_INST(POP   , "pop"   , pop_inst   ) \
@@ -56,14 +57,14 @@ void and_inst           (Machine* machine);
 void or_inst            (Machine* machine);
 void xor_inst           (Machine* machine);
 // Memory manipulation
-void ldi_inst           (Machine* machine); // pushes the value into the stack
-void lds_inst           (Machine* machine); // pops dir pushes val
-void sti_inst           (Machine* machine); // pops the value stores into mem
-void sts_inst           (Machine* machine); // pops the dir and the value pops into mem
+void ldi_inst           (Machine* machine);
+void lds_inst           (Machine* machine);
+void sti_inst           (Machine* machine);
+void sts_inst           (Machine* machine);
 // Control flow
-void cmp_inst           (Machine* machine); // pushes the value into the stack
-void jmp_inst           (Machine* machine); // takes the dir from memory 
-void jnz_inst           (Machine* machine); // takes the dir from memory and pops the top
+void cmp_inst           (Machine* machine);
+void jmp_inst           (Machine* machine);
+void jnz_inst           (Machine* machine);
 // Output operations
 void print_inst         (Machine* machine);
 // Misc

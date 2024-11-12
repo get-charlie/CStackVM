@@ -22,41 +22,22 @@ static const struct Instrucion InstMap[] = {
     #undef  X_INST
 };
 
-// Helper functions
-static bool is_int(char* str)
+static bool is_int(char* word)
 {
-    if(str == NULL || str[0] == '\0'){
+    if(word == NULL || word[0] == '\0'){
         return false;
     }
     int i = 0;
-    if(str[i] == '-' || str[i] == '+'){
+    if(word[i] == '-' || word[i] == '+'){
         i++;
     }
-    while(str[i]) {
-        if(!isdigit(str[i])){
+    while(word[i]) {
+        if(!isdigit(word[i])){
             return false;
         }
         i++;
     }
     return true;
-}
-
-static int get_instcode(char* word)
-{
-    for(size_t i = 0; i < sizeof(InstMap) / sizeof(struct Instrucion); i++){
-        if(!strcmp(InstMap[i].instname, word)){
-            return InstMap[i].instcode;
-        }
-    }
-    return ILLEGAL; 
-}
-
-static void copy_tag(char* dest, char* source){
-    size_t i;
-    for(i = 0; i < sizeof(source) && source[i] != ':'; i++){
-        dest[i] = source[i];
-    }
-    dest[i] = '\0';
 }
 
 typedef struct {
@@ -68,16 +49,6 @@ typedef struct{
     JumpTag vector[MAX_TAGS];
     size_t  size;
 } JumpTable;
-
-static int get_jump_index(JumpTable jtable, char* tok)
-{
-    for(size_t i = 0; i < jtable.size; i++){
-        if(!strcmp(tok, jtable.vector[i].tag)){
-            return jtable.vector[i].address;
-        }
-    }
-    return -1;
-}
 
 static void set_jump_table(JumpTable* table, FILE* prog)
 {
@@ -94,9 +65,10 @@ static void set_jump_table(JumpTable* table, FILE* prog)
                 break;
             }
             if(strchr(tok, ':')){
-                copy_tag(table->vector[table->size].tag, tok);
+                size_t i; 
+                for(i = 0; i < sizeof(tok) && tok[i] != ':'; i++) table->vector[table->size].tag[i] = tok[i];
+                table->vector[table->size].tag[i] = '\0';
                 table->vector[table->size].address = cur_dir;
-                // printf("%2d - tag: %8s, %2d\n", cur_dir, table->vector[table->size].tag, cur_dir);
                 table->size++;
             }
             else{
@@ -107,7 +79,27 @@ static void set_jump_table(JumpTable* table, FILE* prog)
     }
 }
 
-void load_memory(Machine* machine, JumpTable jtable, FILE* prog)
+static int get_jump_index(JumpTable jtable, char* tok)
+{
+    for(size_t i = 0; i < jtable.size; i++){
+        if(!strcmp(tok, jtable.vector[i].tag)){
+            return jtable.vector[i].address;
+        }
+    }
+    return -1;
+}
+
+static int get_instcode(char* word)
+{
+    for(size_t i = 0; i < sizeof(InstMap) / sizeof(struct Instrucion); i++){
+        if(!strcmp(InstMap[i].instname, word)){
+            return InstMap[i].instcode;
+        }
+    }
+    return ILLEGAL; 
+}
+
+static void load_memory(Machine* machine, JumpTable jtable, FILE* prog)
 {
     char line[MAX_LINE];
     int  cur_dir = 0;
@@ -124,15 +116,12 @@ void load_memory(Machine* machine, JumpTable jtable, FILE* prog)
             int address = get_jump_index(jtable, tok);
             if(address >= 0){
                 write_memory(machine, cur_dir, address);
-                // printf("%2d - jmp: %8s, %2d\n", cur_dir, tok, address);
             }
             else if(is_int(tok)){
                 write_memory(machine, cur_dir, atoi(tok));
-                // printf("%2d - num: %8s\n", cur_dir, tok);
             }
             else{
                 write_memory(machine, cur_dir, get_instcode(tok));
-                // printf("%2d - ins: %8s\n", cur_dir, tok);
             }
             tok = strtok(NULL, DELIM);
             cur_dir++;
@@ -170,7 +159,7 @@ void push_args(Machine* machine, int argc, char* argv[])
 void execute_next(Machine* machine)
 {
     InstCode inst = read_program_c(machine, 0);
-    if(inst == ILLEGAL){
+    if(inst >= ILLEGAL){
         illegal_instruction();
     }
     InstMap[inst].execute(machine);
