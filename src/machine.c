@@ -182,7 +182,7 @@ int read_program_c(Machine* machine, size_t offset)
     return machine->memory[machine->program_c + offset];
 }
 
-void move_program_c (Machine* machine, size_t address)
+void move_program_c(Machine* machine, size_t address)
 {   
     if(address >= MAX_MEM){
         memory_out_of_bounds();
@@ -234,16 +234,21 @@ void move_stack_p(Machine* machine, int offset)
 }
 
 // Debugging
-void debug_machine(Machine* machine)
+void debug_memory(Machine* machine)
 {
     printf("PC: %-4d ", (int)machine->program_c);
     InstCode inst = read_program_c(machine, 0);
+
     if(inst >= ILLEGAL){
         printf("INST: %-8s ", "illegal");
     }
     else{
         printf("INST: %-8s ", InstMap[inst].instname);
     }
+}
+
+void debug_stack(Machine* machine)
+{
     printf("STACK: ");
     if(machine->stack_p == 0){
         printf("EMPTY");
@@ -254,11 +259,5 @@ void debug_machine(Machine* machine)
         if(i != machine->stack_p -1) printf(", ");
     }
 }
-
-
-
-
-
-
 
 

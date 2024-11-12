@@ -146,14 +146,14 @@ void xor_inst(Machine* machine)
 
 void shl_inst(Machine* machine)
 {
-    set_stack_val(machine, -2, get_stack_val(machine, -2) << get_stack_val(machine, -1));
+    set_stack_val(machine, -2, (unsigned)get_stack_val(machine, -2) << (unsigned)get_stack_val(machine, -1));
     move_stack_p(machine, -1);
     step_program_c(machine, 1);
 }
 
 void shr_inst(Machine* machine)
 {
-    set_stack_val(machine, -2, get_stack_val(machine, -2) >> get_stack_val(machine, -1));
+    set_stack_val(machine, -2, (unsigned)get_stack_val(machine, -2) >> (unsigned)get_stack_val(machine, -1));
     move_stack_p(machine, -1);
     step_program_c(machine, 1);
 }
@@ -198,13 +198,13 @@ void jmp_inst(Machine* machine)
 void print_inst(Machine* machine)
 {
     #ifdef DEBUG
-        printf("\nOUT: ");
+        printf("OUT: ");
     #endif
     if(machine->stack_p < 1){
         printf("EMPTY");
     }
     else{
-        printf("%d", machine->stack[machine->stack_p - 1]);
+        printf("%d ", machine->stack[machine->stack_p - 1]);
     }
     #ifndef DEBUG
         printf("\n");

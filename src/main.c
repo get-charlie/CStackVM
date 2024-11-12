@@ -20,16 +20,22 @@ int main (int argc, char* argv[])
     Machine machine = {0};
     load_prog(&machine, argv[1]);
     push_args(&machine, argc, argv);
+
     #ifdef DEBUG
         printf("Running %s...\n", argv[1]);
         printf("Press ENTER to step the program\n");
     #endif
+
     while(true){
+
         #ifdef DEBUG
-            debug_machine(&machine);
+            debug_memory(&machine);
         #endif
+
         execute_next(&machine);
+
         #ifdef DEBUG
+            debug_stack(&machine);
             getchar();
         #endif
     }

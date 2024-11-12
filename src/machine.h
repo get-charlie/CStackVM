@@ -39,8 +39,10 @@ void write_memory   (Machine* machine, size_t address, int val);
 void move_stack_p   (Machine* machine, int offset);
 int  get_stack_val  (Machine* machine, int offset);
 void set_stack_val  (Machine* machine, int offset, int val);
+
 // Debugging
-void debug_machine  (Machine* machine);
+void debug_memory   (Machine* machine);
+void debug_stack    (Machine* machine);
 
 #endif
 
