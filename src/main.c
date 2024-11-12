@@ -22,7 +22,9 @@ int main (int argc, char* argv[])
     push_args(&machine, argc, argv);
 
     while(true){
+        // dump_machine(machine);
         execute_next(&machine);
+        // getchar();
     }
     return 0;
 }

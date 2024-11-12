@@ -59,19 +59,85 @@ static void copy_tag(char* dest, char* source){
     dest[i] = '\0';
 }
 
-struct JumpTag {
+typedef struct {
     char tag[MAX_WORD];
     int  address;
-}; 
+} JumpTag; 
 
-static int get_jump_index(struct JumpTag table[MAX_TAGS], size_t table_size, char* tok)
+typedef struct{
+    JumpTag vector[MAX_TAGS];
+    size_t  size;
+} JumpTable;
+
+static int get_jump_index(JumpTable jtable, char* tok)
 {
-    for(size_t i = 0; i < table_size; i++){
-        if(!strcmp(tok, table[i].tag)){
-            return table[i].address;
+    for(size_t i = 0; i < jtable.size; i++){
+        if(!strcmp(tok, jtable.vector[i].tag)){
+            return jtable.vector[i].address;
         }
     }
     return -1;
+}
+
+static void set_jump_table(JumpTable* table, FILE* prog)
+{
+    char line[MAX_LINE];
+    int  cur_dir = 0;
+    while(fgets(line, MAX_LINE, prog)){
+        char* tok = strtok(line, DELIM);
+        while(tok != NULL){
+            if(table->size >= MAX_TAGS){
+                fprintf(stderr, "Error: maximum number of jumps exceeded\n");
+                exit(EXIT_FAILURE);
+            }
+            if(strchr(tok, ';')){
+                break;
+            }
+            if(strchr(tok, ':')){
+                copy_tag(table->vector[table->size].tag, tok);
+                table->vector[table->size].address = cur_dir;
+                // printf("%2d - tag: %8s, %2d\n", cur_dir, table->vector[table->size].tag, cur_dir);
+                table->size++;
+            }
+            else{
+                cur_dir++;
+            }
+            tok = strtok(NULL, DELIM);
+        }
+    }
+}
+
+void load_memory(Machine* machine, JumpTable jtable, FILE* prog)
+{
+    char line[MAX_LINE];
+    int  cur_dir = 0;
+    while(fgets(line, MAX_LINE, prog)){
+        char* tok = strtok(line, DELIM);
+        while(tok != NULL){
+            if(strchr(tok, ';')){
+                break;
+            }
+            if(strchr(tok, ':')){
+                tok = strtok(NULL, DELIM);
+                continue;
+            }
+            int address = get_jump_index(jtable, tok);
+            if(address >= 0){
+                write_memory(machine, cur_dir, address);
+                // printf("%2d - jmp: %8s, %2d\n", cur_dir, tok, address);
+            }
+            else if(is_int(tok)){
+                write_memory(machine, cur_dir, atoi(tok));
+                // printf("%2d - num: %8s\n", cur_dir, tok);
+            }
+            else{
+                write_memory(machine, cur_dir, get_instcode(tok));
+                // printf("%2d - ins: %8s\n", cur_dir, tok);
+            }
+            tok = strtok(NULL, DELIM);
+            cur_dir++;
+        }
+    }
 }
 
 // Program loading
@@ -82,37 +148,13 @@ void load_prog(Machine* machine, char* path)
        fprintf(stderr, "ERROR: Could not open %s file\n", path);
        exit(EXIT_FAILURE);
     }
-    char line[MAX_LINE];
-    struct JumpTag jump_table[MAX_TAGS] = {0};
-    size_t table_size = 0;
-    int cur_dir = 0;
-    while(fgets(line, MAX_LINE, prog)){
-        char* tok = strtok(line, DELIM);
-        while(tok != NULL){
-            if(strchr(tok, ';')){
-                break;
-            }
-            if(strchr(tok, ':') && table_size < MAX_TAGS){
-                copy_tag(jump_table[table_size].tag, tok);
-                jump_table[table_size].address = cur_dir;
-                table_size++;
-                tok = strtok(NULL, DELIM);
-                continue;
-            }
-            int address = get_jump_index(jump_table, table_size, tok); 
-            if(address > 0){
-                write_memory(machine, cur_dir, address);
-            }
-            else if(is_int(tok)){
-                write_memory(machine, cur_dir, atoi(tok));
-            }
-            else{
-                write_memory(machine, cur_dir, get_instcode(tok));
-            }
-            tok = strtok(NULL, DELIM);
-            cur_dir++;
-        }
-    }
+    
+    JumpTable jtable = {0};
+    set_jump_table(&jtable, prog);
+    rewind(prog);
+   
+    load_memory(machine, jtable, prog);
+
     fclose(prog);
 }
 
@@ -215,9 +257,14 @@ void dump_machine(Machine machine)
     for(int i = 0; i < (int)machine.stack_p; i++){
         printf("%d, ", machine.stack[i]);
     }
-    for(int i = 0; i < MAX_MEM; i++){
-        printf("dir: %d %3d\n", i, machine.memory[i]);
-    }
+    // printf("\n");
+    // for(int i = 0; i < MAX_MEM; i++){
+    //     printf("%3d ", i);
+    // }
+    // printf("\n");
+    // for(int i = 0; i < MAX_MEM; i++){
+    //     printf("%3d ", machine.memory[i]);
+    // }
 }
 
 
