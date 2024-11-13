@@ -166,20 +166,20 @@ void execute_next(Machine* machine)
 }
 
 // Machine control
-void step_program_c(Machine* machine, size_t offset)
-{
-    if(machine->program_c + offset >= MAX_MEM){
-        memory_out_of_bounds();
-    }
-    machine->program_c += offset;
-}
-
 int read_program_c(Machine* machine, size_t offset)
 {
     if(machine->program_c + offset >= MAX_MEM){
         memory_out_of_bounds();
     }
     return machine->memory[machine->program_c + offset];
+}
+
+void step_program_c(Machine* machine, size_t offset)
+{
+    if(machine->program_c + offset >= MAX_MEM){
+        memory_out_of_bounds();
+    }
+    machine->program_c += offset;
 }
 
 void move_program_c(Machine* machine, size_t address)
@@ -206,6 +206,17 @@ void write_memory(Machine* machine, size_t address, int val)
     machine->memory[address] = val;
 }
 
+void move_stack_p(Machine* machine, int offset)
+{
+    if(machine->stack_p + offset > MAX_STK){
+        stack_overflow();
+    }
+    if((int)machine->stack_p + offset < 0){
+        stack_underflow();
+    }
+    machine->stack_p += offset;
+}
+
 int get_stack_val (Machine* machine, int offset)
 {
     if((int)machine->stack_p + offset < 0 || machine->stack_p + offset > machine->stack_p){
@@ -220,17 +231,6 @@ void set_stack_val(Machine* machine, int offset, int val)
         illegal_stack_access(); 
     }
     machine->stack[machine->stack_p + offset] = val;
-}
-
-void move_stack_p(Machine* machine, int offset)
-{
-    if(machine->stack_p + offset > MAX_STK){
-        stack_overflow();
-    }
-    if((int)machine->stack_p + offset < 0){
-        stack_underflow();
-    }
-    machine->stack_p += offset;
 }
 
 // Debugging
@@ -259,5 +259,4 @@ void debug_stack(Machine* machine)
         if(i != machine->stack_p -1) printf(", ");
     }
 }
-
 

@@ -2,6 +2,8 @@
 #include "error.h"
 
 // Instructions
+
+// Stack manipulation
 void push_inst(Machine* machine)
 {
     set_stack_val(machine, 0, read_program_c(machine, 1));
@@ -15,6 +17,36 @@ void pop_inst(Machine* machine)
     step_program_c(machine, 1);
 }
 
+void swap_inst(Machine* machine)
+{   
+    int aux = get_stack_val(machine, -2);
+    set_stack_val(machine, -2, get_stack_val(machine, -1));
+    set_stack_val(machine, -1, aux);
+    step_program_c(machine, 1);
+}
+
+void dup_inst(Machine* machine)
+{   
+    set_stack_val(machine, 0, get_stack_val(machine, -1));
+    move_stack_p(machine, 1);
+    step_program_c(machine, 1);
+}
+
+void over_inst(Machine* machine)
+{   
+    set_stack_val(machine, 0, get_stack_val(machine, -2));
+    move_stack_p(machine, 1);
+    step_program_c(machine, 1);
+}
+
+void size_inst(Machine* machine)
+{   
+    set_stack_val(machine, 0, machine->stack_p);
+    move_stack_p(machine, 1);
+    step_program_c(machine, 1);
+}
+
+// Arithmetic operarions
 void inc_inst(Machine* machine)
 {
     set_stack_val(machine, -1, get_stack_val(machine, -1) + 1);
@@ -62,64 +94,10 @@ void mod_inst(Machine* machine)
     step_program_c(machine, 1);
 }
 
+// Binary operations
 void not_inst(Machine* machine)
 {
     set_stack_val(machine, -1, ~get_stack_val(machine, -1));
-    step_program_c(machine, 1);
-}
-
-void swap_inst(Machine* machine)
-{   
-    int aux = get_stack_val(machine, -2);
-    set_stack_val(machine, -2, get_stack_val(machine, -1));
-    set_stack_val(machine, -1, aux);
-    step_program_c(machine, 1);
-}
-
-void dup_inst(Machine* machine)
-{   
-    set_stack_val(machine, 0, get_stack_val(machine, -1));
-    move_stack_p(machine, 1);
-    step_program_c(machine, 1);
-}
-
-void over_inst(Machine* machine)
-{   
-    set_stack_val(machine, 0, get_stack_val(machine, -2));
-    move_stack_p(machine, 1);
-    step_program_c(machine, 1);
-}
-
-void size_inst(Machine* machine)
-{   
-    set_stack_val(machine, 0, machine->stack_p);
-    move_stack_p(machine, 1);
-    step_program_c(machine, 1);
-}
-
-void cmp_inst(Machine* machine)
-{
-    int a = get_stack_val(machine, -1);
-    int b = get_stack_val(machine, -2);
-    set_stack_val(machine, -2, a == b ? -1 : 0);
-    move_stack_p(machine, -1);
-    step_program_c(machine, 1);
-}
-
-void jnz_inst(Machine* machine)
-{
-    int top = get_stack_val(machine, -1);
-    move_stack_p(machine, -1);
-    if(top != 0){
-        jmp_inst(machine);
-    }
-    else{
-        step_program_c(machine, 2);
-    }
-}
-
-void nop_inst(Machine* machine)
-{
     step_program_c(machine, 1);
 }
 
@@ -158,6 +136,7 @@ void shr_inst(Machine* machine)
     step_program_c(machine, 1);
 }
 
+// Memory manipulation
 void ldi_inst(Machine* machine)
 {
     int address = read_program_c(machine, 1);
@@ -189,12 +168,41 @@ void sts_inst(Machine* machine)
     step_program_c(machine, 1);
 }
 
+// Control flow
+void cmp_inst(Machine* machine)
+{
+    int a = get_stack_val(machine, -1);
+    int b = get_stack_val(machine, -2);
+    set_stack_val(machine, -2, a == b ? -1 : 0);
+    move_stack_p(machine, -1);
+    step_program_c(machine, 1);
+}
+
+void neg_inst(Machine* machine)
+{
+    int a = get_stack_val(machine, -1);
+    set_stack_val(machine, -1, a < 0 ? -1 : 0);
+}
+
 void jmp_inst(Machine* machine)
 {
     int address = read_program_c(machine, 1);
     move_program_c(machine, address);
 }
 
+void jnz_inst(Machine* machine)
+{
+    int top = get_stack_val(machine, -1);
+    move_stack_p(machine, -1);
+    if(top != 0){
+        jmp_inst(machine);
+    }
+    else{
+        step_program_c(machine, 2);
+    }
+}
+
+// Misc
 void print_inst(Machine* machine)
 {
     #ifdef DEBUG
@@ -204,11 +212,16 @@ void print_inst(Machine* machine)
         printf("EMPTY");
     }
     else{
-        printf("%d ", machine->stack[machine->stack_p - 1]);
+        printf("%-8d ", machine->stack[machine->stack_p - 1]);
     }
     #ifndef DEBUG
         printf("\n");
     #endif
+    step_program_c(machine, 1);
+}
+
+void nop_inst(Machine* machine)
+{
     step_program_c(machine, 1);
 }
 
@@ -221,3 +234,4 @@ void halt_inst(Machine* machine)
     exit(EXIT_SUCCESS);
 }
 
+// User defined instructions...
