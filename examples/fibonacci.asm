@@ -2,7 +2,7 @@
 
         push    0       ; store number of iterations
         sti     100     ; store number of iterations to dir 100
-            
+
         sti     110     ; store cli argumet to 110
        
         ldi     110     ; if argument is negative end
