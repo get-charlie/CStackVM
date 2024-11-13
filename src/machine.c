@@ -150,6 +150,10 @@ void load_prog(Machine* machine, char* path)
 void push_args(Machine* machine, int argc, char* argv[])
 {
     for(int i = 2; i < argc; i++){
+        if(!is_int(argv[i])){
+            fprintf(stderr, "Error: Argument is not an int.\n");
+            exit(EXIT_FAILURE);
+        }
         set_stack_val(machine, 0, atoi(argv[i]));
         move_stack_p(machine, 1);
     }
