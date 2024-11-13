@@ -12,7 +12,7 @@
 write:  size            ; check is the stack is empty
         push    0
         cmp
-        jnz     read    ; if its empty write on the vector
+        jnz     read    ; if its empty read the vector
         
         ldi     90
         push    100     ; vector starts at 100
