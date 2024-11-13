@@ -182,6 +182,7 @@ void neg_inst(Machine* machine)
 {
     int a = get_stack_val(machine, -1);
     set_stack_val(machine, -1, a < 0 ? -1 : 0);
+    step_program_c(machine, 1);
 }
 
 void jmp_inst(Machine* machine)
