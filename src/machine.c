@@ -221,9 +221,9 @@ void move_stack_p(Machine* machine, int offset)
     machine->stack_p += offset;
 }
 
-int get_stack_val (Machine* machine, int offset)
+int get_stack_val(Machine* machine, int offset)
 {
-    if((int)machine->stack_p + offset < 0 || machine->stack_p + offset > machine->stack_p){
+    if((int)machine->stack_p + offset < 0 || machine->stack_p + offset >= machine->stack_p){
         illegal_stack_access(); 
     }
     return machine->stack[machine->stack_p + offset];
@@ -231,7 +231,7 @@ int get_stack_val (Machine* machine, int offset)
 
 void set_stack_val(Machine* machine, int offset, int val)
 {
-    if((int)machine->stack_p + offset < 0 || machine->stack_p + offset > MAX_STK){
+    if((int)machine->stack_p + offset < 0 || machine->stack_p + offset >= MAX_STK){
         illegal_stack_access(); 
     }
     machine->stack[machine->stack_p + offset] = val;
