@@ -139,31 +139,31 @@ void shr_inst(Machine* machine)
 // Memory manipulation
 void ldi_inst(Machine* machine)
 {
-    int address = read_program_c(machine, 1);
-    set_stack_val(machine, 0, read_memory(machine, address));
+    int addr = read_program_c(machine, 1);
+    set_stack_val(machine, 0, read_memory(machine, addr));
     move_stack_p(machine, 1);
     step_program_c(machine, 2);
 }
 
 void lds_inst(Machine* machine)
 {
-    int address = get_stack_val(machine, -1);
-    set_stack_val(machine, -1, read_memory(machine, address));
+    int addr = get_stack_val(machine, -1);
+    set_stack_val(machine, -1, read_memory(machine, addr));
     step_program_c(machine, 1);
 }
 
 void sti_inst(Machine* machine)
 {
-    int address = read_program_c(machine, 1);
-    write_memory(machine, address, get_stack_val(machine, -1));
+    int addr = read_program_c(machine, 1);
+    write_memory(machine, addr, get_stack_val(machine, -1));
     move_stack_p(machine, -1);
     step_program_c(machine, 2);
 }
 
 void sts_inst(Machine* machine)
 {
-    int address = get_stack_val(machine, -1);
-    write_memory(machine, address, get_stack_val(machine, -2));
+    int addr = get_stack_val(machine, -1);
+    write_memory(machine, addr, get_stack_val(machine, -2));
     move_stack_p(machine, -2);
     step_program_c(machine, 1);
 }
@@ -187,8 +187,8 @@ void neg_inst(Machine* machine)
 
 void jmp_inst(Machine* machine)
 {
-    int address = read_program_c(machine, 1);
-    move_program_c(machine, address);
+    int addr = read_program_c(machine, 1);
+    move_program_c(machine, addr);
 }
 
 void jnz_inst(Machine* machine)
@@ -201,6 +201,19 @@ void jnz_inst(Machine* machine)
     else{
         step_program_c(machine, 2);
     }
+}
+
+void call_inst(Machine* machine)
+{
+    int addr = read_program_c(machine, 1);
+    push_call_stack(machine, machine->program_c);
+    move_program_c(machine, addr);
+}
+
+void ret_inst(Machine* machine)
+{
+    int addr = pop_call_stack(machine);
+    move_program_c(machine, addr + 2);
 }
 
 // Misc

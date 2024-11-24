@@ -39,50 +39,85 @@
     X_INST(NEG   , "neg"   , neg_inst   ) \
     X_INST(JMP   , "jmp"   , jmp_inst   ) \
     X_INST(JNZ   , "jnz"   , jnz_inst   ) \
+    X_INST(CALL  , "call"  , call_inst  ) \
+    X_INST(RET   , "ret"   , ret_inst   ) \
     X_INST(PRINT , "print" , print_inst ) \
     X_INST(NOP   , "nop"   , nop_inst   ) \
     X_INST(HALT  , "halt"  , halt_inst  ) 
 
 // Stack manipulation
-void push_inst          (Machine* machine); // Pushes an imediate value into the stack
-void pop_inst           (Machine* machine); // Pops the top of the stack
-void swap_inst          (Machine* machine); // Swaps the top two values 
-void over_inst          (Machine* machine); // Pushes the value second from the top
-void dup_inst           (Machine* machine); // Dups the top of the stack
-void size_inst          (Machine* machine); // Pushes the size of the stack
+// Pushes an imediate value into the stack
+void push_inst  (Machine* machine); 
+// Pops the top of the stack
+void pop_inst   (Machine* machine); 
+// Swaps the top two values 
+void swap_inst  (Machine* machine); 
+// Pushes the value second from the top
+void over_inst  (Machine* machine); 
+// Dups the top of the stack
+void dup_inst   (Machine* machine); 
+// Pushes the size of the stack
+void size_inst  (Machine* machine); 
 
 // Arithmetic operarions
-void inc_inst           (Machine* machine); // Increases the top by 1
-void add_inst           (Machine* machine); // Pops the top two values, adds them and pushes the result
-void sub_inst           (Machine* machine); // Pops the top two values, substracts them and pushes the result
-void mul_inst           (Machine* machine); // Pops the top two values, multiplies them and pushes the result
-void div_inst           (Machine* machine); // Pops the top two values, divides them and pushes the result
-void mod_inst           (Machine* machine); // Pops the top two values, calculates the mod and pushes the result
+// Increases the top by 1
+void inc_inst   (Machine* machine); 
+// Pops the top two values, adds them and pushes the result
+void add_inst   (Machine* machine); 
+// Pops the top two values, substracts them and pushes the result
+void sub_inst   (Machine* machine); 
+// Pops the top two values, multiplies them and pushes the result
+void mul_inst   (Machine* machine); 
+// Pops the top two values, divides them and pushes the result
+void div_inst   (Machine* machine); 
+// Pops the top two values, calculates the mod and pushes the result
+void mod_inst   (Machine* machine); 
 
 // Binary operations
-void not_inst           (Machine* machine); // Applies the not operation to the top value
-void and_inst           (Machine* machine); // Applies the and operation to the top two values
-void or_inst            (Machine* machine); // Applies the and operation to the top two values
-void xor_inst           (Machine* machine); // Applies the or operation to the top two values
-void shl_inst           (Machine* machine); // Shifts left the bits of the second value of the stack by the top value of the stack
-void shr_inst           (Machine* machine); // Shifts right the bits of the second value of the stack by the top value of the stack
+// Applies the not operation to the top value
+void not_inst   (Machine* machine); 
+// Applies the and operation to the top two values
+void and_inst   (Machine* machine); 
+// Applies the and operation to the top two values
+void or_inst    (Machine* machine); 
+// Applies the or operation to the top two values
+void xor_inst   (Machine* machine); 
+// Shifts left the bits of the second value of the stack by the top value of the stack
+void shl_inst   (Machine* machine); 
+// Shifts right the bits of the second value of the stack by the top value of the stack
+void shr_inst   (Machine* machine); 
 
 // Memory manipulation
-void ldi_inst           (Machine* machine); // Pushes the value from the memory address indicated by an imediate value
-void lds_inst           (Machine* machine); // Pushes the value from the memory address indicated by the top value of the stack. The top value is poped
-void sti_inst           (Machine* machine); // Pops the top and stores it on the memory address indicated by an imediate value
-void sts_inst           (Machine* machine); // Pops the value second from the top and stores it on the memory address indicated by the top of the stack. The memory address is also poped
+// Pushes the value from the memory address indicated by an imediate value
+void ldi_inst   (Machine* machine); 
+// Pushes the value from the memory address indicated by the top value of the stack. The top value is poped
+void lds_inst   (Machine* machine); 
+// Pops the top and stores it on the memory address indicated by an imediate value
+void sti_inst   (Machine* machine); 
+// Pops the value second from the top and stores it on the memory address indicated by the top of the stack. The memory address is also poped
+void sts_inst   (Machine* machine); 
 
 // Control flow
-void cmp_inst           (Machine* machine); // Pops the top two stack values. If they are equal -1 is pushed, otherwise 0 is pushed
-void neg_inst           (Machine* machine); // Pops the top. If it is negative -1 is pushed. Otherwise 0 is pushed.
-void jmp_inst           (Machine* machine); // Jumps to the memory address indicated by an inmediate value
-void jnz_inst           (Machine* machine); // Pops the top and jumps if it's value is equal to 0. If the value is 0 the program continues
+// Pops the top two stack values. If they are equal -1 is pushed, otherwise 0 is pushed
+void cmp_inst   (Machine* machine); 
+// Pops the top. If it is negative -1 is pushed. Otherwise 0 is pushed.
+void neg_inst   (Machine* machine); 
+// Jumps to the memory address indicated by an inmediate value
+void jmp_inst   (Machine* machine); 
+// Pops the top and jumps if it's value is equal to 0. If the value is 0 the program continues
+void jnz_inst   (Machine* machine); 
+// Calls a tag and stores the current program counter into the call stack
+void call_inst  (Machine* machine);
+// Returns to the next instruction from the address pointed to by the top of the call stack
+void ret_inst   (Machine* machine);
 
 // Misc
-void print_inst         (Machine* machine); // Prints the top of the stack without poping it. If the stack is empty 'EMPTY' is printed
-void nop_inst           (Machine* machine); // Does nothing
-void halt_inst          (Machine* machine); // Exits
+// Prints the top of the stack without poping it. If the stack is empty 'EMPTY' is printed
+void print_inst (Machine* machine); 
+// Does nothing
+void nop_inst   (Machine* machine); 
+// Exits
+void halt_inst  (Machine* machine); 
 
 // User defined instructions...
 

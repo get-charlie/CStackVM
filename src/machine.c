@@ -42,7 +42,7 @@ static bool is_int(char* word)
 
 typedef struct {
     char tag[MAX_WORD];
-    int  address;
+    int  addr;
 } JumpTag; 
 
 typedef struct{
@@ -68,7 +68,7 @@ static void set_jump_table(JumpTable* table, FILE* prog)
                 size_t i; 
                 for(i = 0; i < sizeof(tok) && tok[i] != ':'; i++) table->vector[table->size].tag[i] = tok[i];
                 table->vector[table->size].tag[i] = '\0';
-                table->vector[table->size].address = cur_dir;
+                table->vector[table->size].addr = cur_dir;
                 table->size++;
             }
             else{
@@ -83,7 +83,7 @@ static int get_jump_index(JumpTable jtable, char* tok)
 {
     for(size_t i = 0; i < jtable.size; i++){
         if(!strcmp(tok, jtable.vector[i].tag)){
-            return jtable.vector[i].address;
+            return jtable.vector[i].addr;
         }
     }
     return -1;
@@ -113,9 +113,9 @@ static void load_memory(Machine* machine, JumpTable jtable, FILE* prog)
                 tok = strtok(NULL, DELIM);
                 continue;
             }
-            int address = get_jump_index(jtable, tok);
-            if(address >= 0){
-                write_memory(machine, cur_dir, address);
+            int addr = get_jump_index(jtable, tok);
+            if(addr >= 0){
+                write_memory(machine, cur_dir, addr);
             }
             else if(is_int(tok)){
                 write_memory(machine, cur_dir, atoi(tok));
@@ -186,28 +186,28 @@ void step_program_c(Machine* machine, size_t offset)
     machine->program_c += offset;
 }
 
-void move_program_c(Machine* machine, size_t address)
+void move_program_c(Machine* machine, size_t addr)
 {   
-    if(address >= MAX_MEM){
+    if(addr >= MAX_MEM){
         memory_out_of_bounds();
     }
-    machine->program_c = address;
+    machine->program_c = addr;
 }
 
-int read_memory(Machine* machine, size_t address)
+int read_memory(Machine* machine, size_t addr)
 {
-    if(address >= MAX_MEM){
+    if(addr >= MAX_MEM){
         memory_out_of_bounds();
     }
-    return machine->memory[address];
+    return machine->memory[addr];
 }
 
-void write_memory(Machine* machine, size_t address, int val)
+void write_memory(Machine* machine, size_t addr, int val)
 {
-    if(address >= MAX_MEM){
+    if(addr >= MAX_MEM){
         memory_out_of_bounds();
     }
-    machine->memory[address] = val;
+    machine->memory[addr] = val;
 }
 
 void move_stack_p(Machine* machine, int offset)
@@ -235,6 +235,25 @@ void set_stack_val(Machine* machine, int offset, int val)
         illegal_stack_access(); 
     }
     machine->stack[machine->stack_p + offset] = val;
+}
+
+void push_call_stack(Machine* machine, size_t addr)
+{
+    if(machine->call_stack_p >= MAX_CALL_STK){
+        call_stack_overflow(); 
+    } 
+    machine->call_stack[machine->call_stack_p] = addr;
+    machine->call_stack_p++;
+}
+
+int pop_call_stack(Machine* machine)
+{
+    if(machine->call_stack_p <= 0){
+        call_stack_overflow(); 
+    } 
+    size_t addr = machine->call_stack[machine->call_stack_p - 1];
+    machine->call_stack_p--;
+    return addr;
 }
 
 // Debugging

@@ -36,7 +36,17 @@ void illegal_stack_access()
     exit(EXIT_FAILURE);
 }
 
+void call_stack_overflow()
+{
+    fprintf(stderr, "Error: Call Stack Overflow\n");
+    exit(EXIT_FAILURE);
+}
 
+void call_stack_underflow()
+{
+    fprintf(stderr, "Error: Call Stack Underflow\n");
+    exit(EXIT_FAILURE);
+}
 
 
 
