@@ -110,7 +110,7 @@ static void load_memory(Machine* machine, JumpTable jtable, FILE* prog)
                 break;
             }
             if(strchr(tok, ':')){
-                if(strstr(tok, "main")){ // make the program start at main
+                if(!strcmp(tok, "main:")){ // make the program start at main
                     machine->program_c = cur_dir;
                 }
                 tok = strtok(NULL, DELIM);
